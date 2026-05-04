@@ -13,21 +13,38 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.energy360mobile.R
+import com.example.energy360mobile.databases.userData.UserDatabase
+import com.example.energy360mobile.databases.userData.UserRepository
+import com.example.energy360mobile.viewmodels.UserViewModel
+import com.example.energy360mobile.viewmodels.UserViewModelFactory
 
 @Composable
 fun UserProfile(rootNavController: NavHostController) {
+    val context = LocalContext.current
+    val database = UserDatabase.getDatabase(context)
+    val repository = UserRepository(database.userDao())
+    val viewModel: UserViewModel = viewModel(
+        factory = UserViewModelFactory(repository)
+    )
+    
+    val userData by viewModel.userData.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -72,12 +89,12 @@ fun UserProfile(rootNavController: NavHostController) {
                 Spacer(modifier = Modifier.height(12.dp))
                 
                 Text(
-                    text = stringResource(id = R.string.username),
+                    text = userData?.let { "${it.name} ${it.surname}" } ?: stringResource(id = R.string.username),
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
                 )
                 Text(
-                    text = "Socio dal 2023",
+                    text = if (userData != null) "ID: ${userData?.id}" else "Socio dal 2023",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
                 )
@@ -105,9 +122,9 @@ fun UserProfile(rootNavController: NavHostController) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     ProfileInfoRow(Icons.Default.Email, "Email", "user@energy360.com")
                     HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
-                    ProfileInfoRow(Icons.Default.Cake, stringResource(id = R.string.dbo), "01 Gennaio 1990")
+                    ProfileInfoRow(Icons.Default.Cake, stringResource(id = R.string.dbo), userData?.dbo?.toString() ?: "01 Gennaio 1990")
                     HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
-                    ProfileInfoRow(Icons.Default.Badge, stringResource(id = R.string.user_code), "#E360-8821")
+                    ProfileInfoRow(Icons.Default.Badge, stringResource(id = R.string.user_code), "#E360-${userData?.id ?: "8821"}")
                 }
             }
 
