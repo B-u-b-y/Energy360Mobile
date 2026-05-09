@@ -13,6 +13,7 @@ foundationLayout = "1.11.0"
 roomCommon = "2.6.1"
 roomKtx = "2.8.4"
 roomRuntime = "2.6.1"
+protoliteWellKnownTypes = "18.0.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -34,6 +35,7 @@ androidx-compose-foundation-layout = { group = "androidx.compose.foundation", na
 androidx-room-compiler-v261 = { module = "androidx.room:room-compiler", version.ref ="roomKtx" }
 androidx-room-ktx-v261 = { module = "androidx.room:room-ktx", version.ref = "roomKtx" }
 androidx-room-testing = { module = "androidx.room:room-testing", version.ref ="roomKtx" }
+protolite-well-known-types = { group = "com.google.firebase", name = "protolite-well-known-types", version.ref = "protoliteWellKnownTypes" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

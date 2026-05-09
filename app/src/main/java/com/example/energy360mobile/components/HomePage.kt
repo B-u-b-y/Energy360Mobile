@@ -18,10 +18,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.energy360mobile.R
 
 @Composable
-fun HomePage() {
+fun HomePage(rootNavController: NavHostController) {
 
     Column(
         modifier = Modifier
@@ -103,8 +104,8 @@ fun HomePage() {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                QuickActionCard(Modifier.weight(1f),  stringResource(id = R.string.reserve), Icons.Default.CalendarMonth, MaterialTheme.colorScheme.primary)
-                QuickActionCard(Modifier.weight(1f),  stringResource(id = R.string.courses), Icons.Default.FitnessCenter, MaterialTheme.colorScheme.secondary)
+                QuickActionCard(Modifier.weight(1f),  stringResource(id = R.string.reserve), Icons.Default.CalendarMonth, MaterialTheme.colorScheme.primary, )
+                QuickActionCard(Modifier.weight(1f),  stringResource(id = R.string.courses), Icons.Default.FitnessCenter, MaterialTheme.colorScheme.secondary, onClick = { rootNavController.navigate("services") })
             }
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 QuickActionCard(Modifier.weight(1f),  stringResource(id = R.string.start_membership), Icons.Default.CardMembership, MaterialTheme.colorScheme.tertiary)
@@ -139,11 +140,11 @@ fun PromotionCard(modifier: Modifier, title: String, description: String, icon: 
 }
 
 @Composable
-fun QuickActionCard(modifier: Modifier, title: String, icon: ImageVector, color: Color) {
+fun QuickActionCard(modifier: Modifier, title: String, icon: ImageVector, color: Color, onClick: (() -> Unit)? = null) {
     Card(
         modifier = modifier.height(100.dp),
         shape = RoundedCornerShape(16.dp),
-        onClick = { /* Navigazione */ },
+        onClick = onClick ?: {},
         colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer.copy(0.2f)
         )

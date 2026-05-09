@@ -1,8 +1,9 @@
 package com.example.energy360mobile.viewmodels
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.energy360mobile.databases.userData.UserDatabase
 import com.example.energy360mobile.databases.userData.UserEntity
 import com.example.energy360mobile.databases.userData.UserRepository
 import kotlinx.coroutines.flow.SharingStarted
@@ -11,41 +12,34 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 /**
- * ViewModel che gestisce la logica dei dati utente tra il database e la UI.
+ * ViewModel that handles the user logic between DB and UI
  */
-class UserViewModel(private val repository: UserRepository) : ViewModel() {
+class UserViewModel(application: Application) : AndroidViewModel(application) {
 
-    /**
-     * StateFlow che espone i dati dell'utente alla UI in modo reattivo.
-     * Utilizza 'stateIn' per convertire il Flow del repository in uno StateFlow
-     * legato al ciclo di vita del ViewModel.
-     */
-    val userData: StateFlow<UserEntity?> = repository.user
-        .stateIn(
+    private val repository: UserRepository
+
+    // Handle subscription and deletion
+    private val userDataFlow: StateFlow<UserEntity?>
+
+    val userData: StateFlow<UserEntity?>
+        get() = userDataFlow
+
+    init {
+        val database = UserDatabase.getDatabase(application)
+        val dao = database.userDao()
+        repository = UserRepository(dao)
+
+        // Initialized userData
+        userDataFlow = repository.user.stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000), // Mantiene il flow attivo per 5 secondi dopo che la UI sparisce
-            initialValue = null
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = null // Starts with null until the database is reached
         )
-
-    /**
-     * Inserisce o aggiorna un utente nel database in modo asincrono.
-     */
-    fun insertUser(user: UserEntity) {
-        viewModelScope.launch {
-            repository.insertUser(user)
-        }
     }
-}
 
-/**
- * Factory necessaria per istanziare il ViewModel passando il Repository come parametro.
- */
-class UserViewModelFactory(private val repository: UserRepository) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(UserViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return UserViewModel(repository) as T
+    fun insertUserData(userData: UserEntity) {
+        viewModelScope.launch {
+            repository.insertUser(userData)
         }
-        throw IllegalArgumentException("Classe ViewModel sconosciuta")
     }
 }

@@ -114,8 +114,8 @@ fun BottomBar(navController: NavHostController) {
 }
 
 @Composable
-fun HomeScreen() {
-    HomePage()
+fun HomeScreen(rootNavController: NavHostController) {
+    HomePage(rootNavController)
 }
 
 @Composable

@@ -64,8 +64,15 @@
     <string name="no_new_messages">Non ci sono nuovi messaggi</string>
     <string name="back">Indietro</string>
     <string name="write_message">Scrivi un messaggio....</string>
-    <string name="now">Adesso</string>
     <string name="send">Invia</string>
+    <string name="now">Ora</string>
     <string name="training">Allenamento</string>
     <string name="nutrition">Alimentazione</string>
+    <string name="name">Nome</string>
+    <string name="surname">Cognome</string>
+    <string name="invalid_credentials">Credenziali errate</string>
+    <string name="email_label">Email</string>
+    <string name="password_label">Password</string>
+    <string name="invalid_dob">Devi avere almeno 16 anni</string>
+    <string name="no_courses_available">Nessun corso disponibile al momento</string>
 </resources>

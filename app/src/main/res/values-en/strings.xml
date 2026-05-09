@@ -68,4 +68,11 @@
     <string name="send">Send</string>
     <string name="training">Training</string>
     <string name="nutrition">Nutrition</string>
+    <string name="name">Name</string>
+    <string name="surname">Surname</string>
+    <string name="invalid_credentials">Invalid credentials</string>
+    <string name="email_label">Email</string>
+    <string name="password_label">Password</string>
+    <string name="invalid_dob">You must be at least 16 years old</string>
+    <string name="no_courses_available">No courses available at the moment</string>
 </resources>

@@ -2,17 +2,16 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "a55c8bd49ddd6c4787a4f18b7ae4fd55",
+    "identityHash": "fc95329ef0f74de9eef2208ea60f706b",
     "entities": [
       {
         "tableName": "userData",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `surname` TEXT NOT NULL, `email` TEXT NOT NULL, `dbo` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER, `name` TEXT NOT NULL, `password` TEXT NOT NULL, `email` TEXT NOT NULL, `dob` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
+            "affinity": "INTEGER"
           },
           {
             "fieldPath": "name",
@@ -21,8 +20,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "surname",
-            "columnName": "surname",
+            "fieldPath": "password",
+            "columnName": "password",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -33,8 +32,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "dbo",
-            "columnName": "dbo",
+            "fieldPath": "dob",
+            "columnName": "dob",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -49,7 +48,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a55c8bd49ddd6c4787a4f18b7ae4fd55')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fc95329ef0f74de9eef2208ea60f706b')"
     ]
   }
 }

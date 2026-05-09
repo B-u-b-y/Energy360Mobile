@@ -21,7 +21,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -29,20 +28,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.energy360mobile.R
-import com.example.energy360mobile.databases.userData.UserDatabase
-import com.example.energy360mobile.databases.userData.UserRepository
 import com.example.energy360mobile.viewmodels.UserViewModel
-import com.example.energy360mobile.viewmodels.UserViewModelFactory
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @Composable
-fun UserProfile(rootNavController: NavHostController) {
-    val context = LocalContext.current
-    val database = UserDatabase.getDatabase(context)
-    val repository = UserRepository(database.userDao())
-    val viewModel: UserViewModel = viewModel(
-        factory = UserViewModelFactory(repository)
-    )
-    
+fun UserProfile(rootNavController: NavHostController,viewModel: UserViewModel = viewModel() ) {
     val userData by viewModel.userData.collectAsState()
 
     Column(
@@ -89,7 +80,8 @@ fun UserProfile(rootNavController: NavHostController) {
                 Spacer(modifier = Modifier.height(12.dp))
                 
                 Text(
-                    text = userData?.let { "${it.name} ${it.surname}" } ?: stringResource(id = R.string.username),
+                    text = userData?.name?.split(" ")?.joinToString(" ") { it.replaceFirstChar { char -> char.uppercase() } } 
+                        ?: stringResource(id = R.string.username),
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
                 )
@@ -120,11 +112,11 @@ fun UserProfile(rootNavController: NavHostController) {
                 )
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    ProfileInfoRow(Icons.Default.Email, "Email", "user@energy360.com")
+                    ProfileInfoRow(Icons.Default.Email, "Email", userData?.email.toString())
                     HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
-                    ProfileInfoRow(Icons.Default.Cake, stringResource(id = R.string.dbo), userData?.dbo?.toString() ?: "01 Gennaio 1990")
+                    ProfileInfoRow(Icons.Default.Cake, stringResource(id = R.string.dbo), userData?.let { convertMillisToDate(it.dob) } ?: "---")
                     HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
-                    ProfileInfoRow(Icons.Default.Badge, stringResource(id = R.string.user_code), "#E360-${userData?.id ?: "8821"}")
+                    ProfileInfoRow(Icons.Default.Badge, stringResource(id = R.string.user_code), "${userData?.id ?: "---"}")
                 }
             }
 
@@ -232,5 +224,15 @@ fun StatusCard(modifier: Modifier, title: String, subtitle: String, icon: ImageV
             Text(text = title, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
             Text(text = subtitle, style = MaterialTheme.typography.bodySmall)
         }
+    }
+}
+
+fun convertMillisToDate(dateMillis: Long): String {
+    return try {
+        val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        val date = java.util.Date(dateMillis)
+        sdf.format(date)
+    } catch (e: Exception) {
+        "---"
     }
 }
