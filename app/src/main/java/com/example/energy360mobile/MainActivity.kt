@@ -1,7 +1,6 @@
 package com.example.energy360mobile
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -29,10 +28,10 @@ import com.example.energy360mobile.components.Screen
 import com.example.energy360mobile.components.SearchScreen
 import com.example.energy360mobile.components.ServicesPage
 import com.example.energy360mobile.components.TrainingSession
-import com.example.energy360mobile.databases.userData.UserEntity
 import com.example.energy360mobile.theme.Energy360MobileTheme
+import com.example.energy360mobile.viewmodels.ReservationsViewModel
+import com.example.energy360mobile.viewmodels.ServicesViewModel
 import com.example.energy360mobile.viewmodels.UserViewModel
-import kotlinx.coroutines.flow.StateFlow
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,6 +53,10 @@ fun MainApp() {
     val currentRoute = navBackStackEntry?.destination?.route
 
     val viewModel : UserViewModel = viewModel()
+
+    val serviceViewModel : ServicesViewModel = viewModel()
+
+    val reservationsViewModel : ReservationsViewModel = viewModel()
 
     val userData by viewModel.userData.collectAsState()
 
@@ -83,16 +86,16 @@ fun MainApp() {
         ) {
             composable("auth") { Execution(viewModel, navController) }
             composable(Screen.Home.route) { HomeScreen(navController) }
-            composable("message_page") { MessagesScreen(navController) }
+            composable(Screen.Messages.route) { MessagesScreen(navController) }
             composable(Screen.Search.route) { SearchScreen() }
-            composable(Screen.Reservation.route) { ReservationScreen() }
+            composable(Screen.Reservation.route) { ReservationScreen(reservationsViewModel) }
             composable(Screen.Profile.route) { ProfileScreen(navController) }
             composable("training_page") { TrainingSession() }
             composable("chat_detail/{senderName}") { backStackEntry ->
                 val senderName = backStackEntry.arguments?.getString("senderName") ?: ""
                 ChatDetailScreen(senderName = senderName, onBack = { navController.popBackStack() })
             }
-            composable("services") {ServicesPage(navController, onBack = { navController.popBackStack() })}
+            composable("services") {ServicesPage(onBack = { navController.popBackStack() })}
         }
     }
 }

@@ -75,4 +75,7 @@
     <string name="password_label">Password</string>
     <string name="invalid_dob">You must be at least 16 years old</string>
     <string name="no_courses_available">No courses available at the moment</string>
+    <string name="already_reserved">Booked</string>
+    <string name="promo_yoga_desc">20% discount for new members</string>
+    <string name="promo_openday_desc">Come and try for free</string>
 </resources>

@@ -7,12 +7,10 @@ espressoCore = "3.7.0"
 lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.13.0"
 kotlin = "2.3.21"
-composeBom = "2026.04.01"
+composeBom = "2026.05.00"
 navigationCompose = "2.9.8"
-foundationLayout = "1.11.0"
-roomCommon = "2.6.1"
+foundationLayout = "1.11.1"
 roomKtx = "2.8.4"
-roomRuntime = "2.6.1"
 protoliteWellKnownTypes = "18.0.1"
 
 [libraries]
@@ -40,7 +38,7 @@ protolite-well-known-types = { group = "com.google.firebase", name = "protolite-
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-ksp = { id = "com.google.devtools.ksp", version = "2.0.21-1.0.27" }
+ksp = { id = "com.google.devtools.ksp", version = "2.3.2" }
 androidx-room = { id = "androidx.room", version.ref = "roomKtx" }
 # compose-compiler is redundant as it is the same as kotlin-compose
 # compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

@@ -100,7 +100,8 @@ fun ChatDetailScreen(senderName: String, onBack: () -> Unit) {
                         ),
                         shape = RoundedCornerShape(24.dp)
                     )
-                    .padding(horizontal = 24.dp)
+                    .padding(horizontal = 12.dp),
+                contentAlignment = Alignment.CenterStart
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(onClick = onBack) {

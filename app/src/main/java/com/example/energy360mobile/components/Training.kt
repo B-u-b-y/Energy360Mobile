@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.energy360mobile.R
+import java.util.Calendar
 
 data class Exercise(
     val name: String,
@@ -42,7 +42,8 @@ val workoutPlan = listOf(
 
 @Composable
 fun TrainingSession() {
-    val days = listOf(
+    val dayKeys = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+    val dayLabels = listOf(
         stringResource(id = R.string.monday_day),
         stringResource(id = R.string.tuesday_day),
         stringResource(id = R.string.wednesday_day),
@@ -51,7 +52,22 @@ fun TrainingSession() {
         stringResource(id = R.string.saturday_day),
         stringResource(id = R.string.sunday_day),
     )
-    var selectedDay by remember { mutableStateOf("Mon") }
+
+    val calendar = Calendar.getInstance()
+    val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
+
+    val currentDayKey = when (dayOfWeek) {
+        Calendar.MONDAY -> "Mon"
+        Calendar.TUESDAY -> "Tue"
+        Calendar.WEDNESDAY -> "Wed"
+        Calendar.THURSDAY -> "Thu"
+        Calendar.FRIDAY -> "Fri"
+        Calendar.SATURDAY -> "Sat"
+        Calendar.SUNDAY -> "Sun"
+        else -> "Mon"
+    }
+
+    var selectedDay by remember { mutableStateOf(currentDayKey) }
 
     Column(
         modifier = Modifier
@@ -100,11 +116,13 @@ fun TrainingSession() {
                     modifier = Modifier.padding(12.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(days) { day ->
+                    items(dayKeys.size) { index ->
+                        val key = dayKeys[index]
+                        val label = dayLabels[index]
                         DayChip(
-                            day = day,
-                            isSelected = selectedDay == day,
-                            onClick = { selectedDay = day }
+                            day = label,
+                            isSelected = selectedDay == key,
+                            onClick = { selectedDay = key }
                         )
                     }
                 }

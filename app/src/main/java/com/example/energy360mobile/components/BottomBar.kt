@@ -31,9 +31,10 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.energy360mobile.R
+import com.example.energy360mobile.viewmodels.ReservationsViewModel
 
 sealed class Screen(val route: String, val labelId: Int, val selectedIcon: ImageVector, val unselectedIcon: ImageVector) {
-    object Home : Screen("home", R.string.home_label, Icons.Default.Home, Icons.Outlined.Home)
+    object Home : Screen("dashboard/home", R.string.home_label, Icons.Default.Home, Icons.Outlined.Home)
     object Search : Screen("search", R.string.search_label, Icons.Default.Search, Icons.Outlined.Search)
     object Reservation : Screen("reservation", R.string.reserve, Icons.Default.CalendarToday, Icons.Outlined.CalendarToday)
     object Profile : Screen("profile", R.string.profile_label, Icons.Default.Person, Icons.Outlined.Person)
@@ -96,12 +97,20 @@ fun BottomBar(navController: NavHostController) {
                 },
                 selected = isSelected,
                 onClick = {
-                    navController.navigate(screen.route) {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
+                    if (screen.route == Screen.Home.route) {
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(Screen.Home.route) { inclusive = true }
+                            launchSingleTop = true
+                            restoreState = false
                         }
-                        launchSingleTop = true
-                        restoreState = true
+                    }else {
+                        navController.navigate(screen.route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                     }
                 },
                 colors = NavigationBarItemDefaults.colors(
@@ -134,6 +143,6 @@ fun SearchScreen() {
 }
 
 @Composable
-fun ReservationScreen() {
-    Reservations()
+fun ReservationScreen(viewModel: ReservationsViewModel) {
+    Reservations(viewModel)
 }

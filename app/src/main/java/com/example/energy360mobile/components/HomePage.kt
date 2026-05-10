@@ -19,10 +19,28 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.energy360mobile.R
+
 
 @Composable
 fun HomePage(rootNavController: NavHostController) {
+    val internalNavController = rememberNavController()
+
+    NavHost(
+        navController = internalNavController,
+        startDestination = "dashboard/home"
+    ) {
+        composable("dashboard/home") { HomeDashboard(internalNavController) }
+        composable(Screen.Search.route) { SearchPage() }
+        composable("dashboard/services") { ServicesPage(onBack = { internalNavController.popBackStack() }) }
+    }
+}
+
+@Composable
+fun HomeDashboard(navController: NavHostController) {
 
     Column(
         modifier = Modifier
@@ -35,7 +53,10 @@ fun HomePage(rootNavController: NavHostController) {
                 .height(220.dp)
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primaryContainer)
+                        colors = listOf(
+                            MaterialTheme.colorScheme.primary,
+                            MaterialTheme.colorScheme.primaryContainer
+                        )
                     ),
                     shape = RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp)
                 )
@@ -79,15 +100,15 @@ fun HomePage(rootNavController: NavHostController) {
         ) {
             PromotionCard(
                 modifier = Modifier.weight(1f),
-                title = "Corso Yoga",
-                description = "Sconto 20% per i nuovi iscritti",
+                title = "Yoga",
+                description = stringResource(id = R.string.promo_yoga_desc),
                 icon = Icons.Default.SelfImprovement,
                 containerColor = MaterialTheme.colorScheme.secondaryContainer
             )
             PromotionCard(
                 modifier = Modifier.weight(1f),
                 title = "Open Day",
-                description = "Vieni a provare gratuitamente",
+                description = stringResource(id = R.string.promo_openday_desc),
                 icon = Icons.Default.Celebration,
                 containerColor = MaterialTheme.colorScheme.tertiaryContainer
             )
@@ -104,8 +125,8 @@ fun HomePage(rootNavController: NavHostController) {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                QuickActionCard(Modifier.weight(1f),  stringResource(id = R.string.reserve), Icons.Default.CalendarMonth, MaterialTheme.colorScheme.primary, )
-                QuickActionCard(Modifier.weight(1f),  stringResource(id = R.string.courses), Icons.Default.FitnessCenter, MaterialTheme.colorScheme.secondary, onClick = { rootNavController.navigate("services") })
+                QuickActionCard(Modifier.weight(1f),  stringResource(id = R.string.reserve), Icons.Default.CalendarMonth, MaterialTheme.colorScheme.primary, onClick = { navController.navigate(Screen.Search.route)})
+                QuickActionCard(Modifier.weight(1f),  stringResource(id = R.string.courses), Icons.Default.FitnessCenter, MaterialTheme.colorScheme.secondary, onClick = { navController.navigate("dashboard/services") })
             }
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 QuickActionCard(Modifier.weight(1f),  stringResource(id = R.string.start_membership), Icons.Default.CardMembership, MaterialTheme.colorScheme.tertiary)

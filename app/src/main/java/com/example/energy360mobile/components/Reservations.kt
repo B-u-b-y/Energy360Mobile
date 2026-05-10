@@ -13,31 +13,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.energy360mobile.R
-
-data class GymEvent(
-    val name: String,
-    val date: String,
-    val icon: ImageVector = Icons.Default.Event,
-    var isReserved: Boolean = false
-)
-
-val gymEvents = mutableStateListOf(
-    GymEvent("Allenamento Corpo Libero", "12 Maggio - 10:00", isReserved = true),
-    GymEvent("Lezione di Acrobatica", "23 Maggio - 19:00", isReserved = true),
-    GymEvent("Ginnastica Artistica Maschile", "3 Giugno - 18:30"),
-    GymEvent("Trampolino Elastico", "5 Giugno - 17:00", isReserved = true),
-    GymEvent("Preparazione Fisica Avanzata", "7 Giugno - 08:30", isReserved = true),
-)
+import com.example.energy360mobile.viewmodels.ReservationsViewModel
+import com.example.energy360mobile.databases.reservations.ReservationsEntity
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
-fun Reservations() {
-   val reservedEvents = gymEvents.filter { it.isReserved }
+fun Reservations(viewModel: ReservationsViewModel) {
+    val reservations by viewModel.reservations.collectAsState()
+    val reservedEvents = reservations.filter { it.isReserved }
+    val upcomingReservations = reservedEvents.filter { !it.isPast }
 
     Column(
         modifier = Modifier
@@ -109,8 +100,8 @@ fun Reservations() {
                     }
                 }
             } else {
-                reservedEvents.forEach { event ->
-                    ReservedEventCard(event)
+                upcomingReservations.forEach { event ->
+                    ReservedEventCard(event, onDelete = { viewModel.deleteReservation(it) })
                 }
             }
         }
@@ -119,7 +110,10 @@ fun Reservations() {
 }
 
 @Composable
-fun ReservedEventCard(event: GymEvent) {
+fun ReservedEventCard(event: ReservationsEntity, onDelete: (ReservationsEntity) -> Unit) {
+    val sdf = SimpleDateFormat("dd MMMM - HH:mm", Locale.getDefault())
+    val formattedDate = sdf.format(Date(event.date))
+    
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -139,7 +133,7 @@ fun ReservedEventCard(event: GymEvent) {
                         .background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(8.dp)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(event.icon,
+                    Icon(Icons.Default.Event,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary
                     )
@@ -162,14 +156,14 @@ fun ReservedEventCard(event: GymEvent) {
                     .weight(1f)
             ) {
                 Text(
-                    text = event.name,
+                    text = event.eventName,
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.Schedule, contentDescription = null,
                         modifier = Modifier
                         .size(14.dp),
                         tint = MaterialTheme.colorScheme.primary)
-                    Text(text = " " + event.date,
+                    Text(text = " " + formattedDate + " (" + event.place + ")",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -177,10 +171,7 @@ fun ReservedEventCard(event: GymEvent) {
             }
 
             //delete button
-            IconButton(onClick = {
-                val index = gymEvents.indexOf(event)
-                if (index != -1) gymEvents[index] = event.copy(isReserved = false)
-            }) {
+            IconButton(onClick = { onDelete(event) }) {
                 Icon(Icons.Default.Cancel,
                     contentDescription = stringResource(id = R.string.delete_reservation),
                     tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f))

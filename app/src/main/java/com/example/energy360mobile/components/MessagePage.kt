@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -39,13 +38,6 @@ data class Message(
     val time: String,
     val isUnread: Boolean = false
 )
-
-//Message("Staff Energy360", "Il tuo abbonamento è in scadenza. Rinnova ora!", "10:30", true),
-//Message("Marco Rossi", "Ciao! Ci vediamo per l'allenamento di domani?", "09:15", true),
-//Message("Segreteria", "Confermato l'Open Day per sabato 15.", "Ieri"),
-//Message("Coach Giulia", "Ottimi progressi nell'ultima sessione!", "Ieri"),
-//Message("Sistema", "Aggiornamento termini e condizioni del servizio.", "2gg fa")
-
 @Composable
 fun MessagePage(rootNavController: NavHostController){
 

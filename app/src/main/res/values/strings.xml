@@ -75,4 +75,7 @@
     <string name="password_label">Password</string>
     <string name="invalid_dob">Devi avere almeno 16 anni</string>
     <string name="no_courses_available">Nessun corso disponibile al momento</string>
+    <string name="already_reserved">Prenotato</string>
+    <string name="promo_yoga_desc">Sconto 20% per i nuovi iscritti</string>
+    <string name="promo_openday_desc">Vieni a provare gratuitamente</string>
 </resources>

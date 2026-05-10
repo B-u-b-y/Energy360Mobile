@@ -75,4 +75,7 @@
     <string name="email_label">Correo electrónico</string>
     <string name="password_label">Contraseña</string>
     <string name="no_courses_available">No hay cursos disponibles en este momento</string>
+    <string name="already_reserved">Reservado</string>
+    <string name="promo_yoga_desc">20% de descuento para nuevos miembros</string>
+    <string name="promo_openday_desc">Ven a probar gratis</string>
 </resources>

@@ -7,12 +7,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -21,14 +23,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
 import com.example.energy360mobile.R
+import com.example.energy360mobile.databases.reservations.ReservationsEntity
 import com.example.energy360mobile.databases.services.ServicesEntity
+import com.example.energy360mobile.viewmodels.ReservationsViewModel
 import com.example.energy360mobile.viewmodels.ServicesViewModel
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @Composable
-fun ServicesPage(rootNavController: NavHostController, viewModel: ServicesViewModel = viewModel(), onBack: () -> Unit) {
+fun ServicesPage(
+    viewModel: ServicesViewModel = viewModel(),
+    reservationsViewModel: ReservationsViewModel = viewModel(),
+    onBack: () -> Unit
+) {
     val services by viewModel.services.collectAsState()
+    val currentReservations by reservationsViewModel.reservations.collectAsState()
+
+    val currentTime = System.currentTimeMillis()
+    val futureServices = services.filter { it.date > currentTime }
 
     Column(
         modifier = Modifier
@@ -80,7 +93,7 @@ fun ServicesPage(rootNavController: NavHostController, viewModel: ServicesViewMo
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            if (services.isEmpty()) {
+            if (futureServices.isEmpty()) {
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -109,8 +122,28 @@ fun ServicesPage(rootNavController: NavHostController, viewModel: ServicesViewMo
                     }
                 }
             } else {
-                services.forEach { service ->
-                    ServiceCard(service)
+                futureServices.forEach { service ->
+                    val isAlreadyReserved = currentReservations.any {
+                        it.eventName == service.name && it.date == service.date
+                    }
+
+                    ServiceCard(
+                        service = service,
+                        isAlreadyReserved = isAlreadyReserved,
+                        onReserve = {
+                            val sdfDay = SimpleDateFormat("EEEE", Locale.getDefault())
+                            val dayString = sdfDay.format(java.util.Date(service.date))
+
+                            val reservation = ReservationsEntity(
+                                eventName = service.name,
+                                day = dayString,
+                                date = service.date,
+                                place = service.place,
+                                isReserved = true
+                            )
+                            reservationsViewModel.insertReservation(reservation)
+                        }
+                    )
                 }
             }
         }
@@ -119,13 +152,24 @@ fun ServicesPage(rootNavController: NavHostController, viewModel: ServicesViewMo
 }
 
 @Composable
-fun ServiceCard(service: ServicesEntity) {
+fun ServiceCard(service: ServicesEntity, isAlreadyReserved: Boolean, onReserve: () -> Unit) {
+    var openReserveButton by remember { mutableStateOf(false) }
+
+    val categoryIcon = when (service.category) {
+        "Benessere" -> Icons.Default.SelfImprovement
+        "Funzionale", "Forza", "Cardio" -> Icons.Default.FitnessCenter
+        "Combattimento" -> Icons.Default.SportsMartialArts
+        "Recupero" -> Icons.Default.AccessibilityNew
+        else -> Icons.Default.FitnessCenter
+    }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(0.2f)
-        )
+        ),
+        onClick = { if (!isAlreadyReserved) openReserveButton = !openReserveButton }
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
@@ -135,10 +179,19 @@ fun ServiceCard(service: ServicesEntity) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(
-                    text = service.name,
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = categoryIcon,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = service.name,
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                    )
+                }
                 Badge(
                     containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
                     contentColor = MaterialTheme.colorScheme.primary
@@ -159,19 +212,67 @@ fun ServiceCard(service: ServicesEntity) {
             )
             
             Spacer(modifier = Modifier.height(12.dp))
-            
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.Timer,
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                Spacer(modifier = Modifier.width(4.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Timer,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = service.duration,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = "• " + service.place,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                }
+
+                if (openReserveButton || isAlreadyReserved) {
+                    Button(
+                        onClick = {
+                            if (!isAlreadyReserved) {
+                                onReserve()
+                                openReserveButton = false
+                            }
+                        },
+                        enabled = !isAlreadyReserved,
+                        shape = RoundedCornerShape(8.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                        modifier = Modifier.height(36.dp),
+                        colors = if (isAlreadyReserved)
+                            ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                contentColor = MaterialTheme.colorScheme.outline
+                            ) else ButtonDefaults.buttonColors()
+                    ) {
+                        Text(
+                            text = if (isAlreadyReserved) stringResource(id = R.string.already_reserved) else stringResource(
+                                id = R.string.reserve
+                            ),
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                    }
+                }
+            }
+
+            if (openReserveButton || isAlreadyReserved) {
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = service.duration,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.primary
+                    text = convertLongToDate(service.date),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.outline
                 )
             }
         }

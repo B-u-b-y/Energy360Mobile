@@ -14,5 +14,7 @@ data class ServicesEntity(
     val name: String,
     val description: String,
     val category: String,
-    val duration: String
+    val duration: String,
+    val date: Long,
+    val place: String
 )

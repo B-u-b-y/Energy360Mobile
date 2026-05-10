@@ -4,9 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -14,16 +12,39 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.energy360mobile.R
+import com.example.energy360mobile.databases.reservations.ReservationsEntity
+import com.example.energy360mobile.databases.services.ServicesEntity
+import com.example.energy360mobile.viewmodels.ReservationsViewModel
+import com.example.energy360mobile.viewmodels.ServicesViewModel
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @Composable
-fun SearchPage() {
+fun SearchPage(viewModel: ServicesViewModel = viewModel(), reservationsViewModel: ReservationsViewModel = viewModel()) {
     var searchQuery by remember { mutableStateOf("") }
-    
+
+    val allServices by viewModel.services.collectAsState()
+    val currentReservations by reservationsViewModel.reservations.collectAsState()
+
+    val filteredResults = remember(searchQuery, allServices) {
+        val currentTime = System.currentTimeMillis()
+        val futureServices = allServices.filter { it.date > currentTime }
+        
+        if (searchQuery.isEmpty()) {
+            futureServices
+        } else {
+            futureServices.filter {
+                it.name.contains(searchQuery, ignoreCase = true) ||
+                        it.category.contains(searchQuery, ignoreCase = true)
+            }
+        }
+    }
+
     val categories = listOf("Yoga", "Crossfit", "Nuoto", "Pilates", "Pesi", "Cardio")
 
     Column(
@@ -125,30 +146,48 @@ fun SearchPage() {
                     style = MaterialTheme.typography.titleMedium
                 )
             }
-            
-            val results = listOf(
-                SearchResult("Hatha Yoga", "Lunedì e Mercoledì - 18:30", "Yoga", Icons.Default.SelfImprovement),
-                SearchResult("Total Body Workout", "Ogni giorno - 09:00", "Pesi", Icons.Default.FitnessCenter),
-                SearchResult("Pilates Matwork", "Martedì e Giovedì - 17:00", "Pilates", Icons.Default.AccessibilityNew)
-            )
+            items(filteredResults) { service ->
+                val isAlreadyReserved = currentReservations.any { 
+                    it.eventName == service.name && it.date == service.date 
+                }
 
-            items(results) { item ->
-                SearchItemCard(item)
+                SearchItemCard(service, isAlreadyReserved = isAlreadyReserved, onReserve = {
+                    val sdfDay = SimpleDateFormat("EEEE", Locale.getDefault())
+                    val dayString = sdfDay.format(java.util.Date(service.date))
+                    
+                    val reservation = ReservationsEntity(
+                        eventName = service.name,
+                        day = dayString,
+                        date = service.date,
+                        place = service.place,
+                        isReserved = true
+                    )
+                    reservationsViewModel.insertReservation(reservation)
+                })
             }
         }
     }
 }
 
-data class SearchResult(val title: String, val time: String, val tag: String, val icon: androidx.compose.ui.graphics.vector.ImageVector)
-
 @Composable
-fun SearchItemCard(result: SearchResult) {
+fun SearchItemCard(result: ServicesEntity, isAlreadyReserved: Boolean, onReserve: () -> Unit) {
+    var openReserveButton by remember { mutableStateOf(false) }
+
+    val categoryIcon = when (result.category) {
+        "Benessere" -> Icons.Default.SelfImprovement
+        "Funzionale", "Forza", "Cardio" -> Icons.Default.FitnessCenter
+        "Combattimento" -> Icons.Default.SportsMartialArts
+        "Recupero" -> Icons.Default.AccessibilityNew
+        else -> Icons.Default.FitnessCenter
+    }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer.copy(0.2f)
-        )
+        ),
+        onClick = { openReserveButton = !openReserveButton }
     ) {
         Row(
             modifier = Modifier
@@ -161,15 +200,56 @@ fun SearchItemCard(result: SearchResult) {
                     .background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(8.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(result.icon,
+                Icon(
+                    imageVector = categoryIcon,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary)
+                    tint = MaterialTheme.colorScheme.primary
+                )
             }
-            
-            Column(modifier = Modifier.padding(start = 16.dp)) {
-                Text(text = result.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text(text = result.time, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
+
+            Column(modifier = Modifier
+                .padding(start = 16.dp)
+                .weight(1f)
+            ) {
+                Text(text = result.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(text = result.category + " • " + result.place, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
+                Text(text = convertLongToDate(result.date) + " • " + result.duration, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
+            }
+
+            if (openReserveButton || isAlreadyReserved) {
+                Button(
+                    onClick = { 
+                        if (!isAlreadyReserved) {
+                            onReserve()
+                            openReserveButton = false
+                        }
+                    },
+                    enabled = !isAlreadyReserved,
+                    shape = RoundedCornerShape(8.dp),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                    modifier = Modifier.height(36.dp),
+                    colors = if (isAlreadyReserved) 
+                        ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            contentColor = MaterialTheme.colorScheme.outline
+                        ) else ButtonDefaults.buttonColors()
+                ) {
+                    Text(
+                        text = if (isAlreadyReserved) stringResource(id = R.string.already_reserved) else stringResource(id = R.string.reserve),
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                }
             }
         }
+    }
+}
+
+fun convertLongToDate(dateMillis: Long): String {
+    return try {
+        val sdf = SimpleDateFormat("dd/MM/yyyy - HH:mm", Locale.getDefault())
+        val date = java.util.Date(dateMillis)
+        sdf.format(date)
+    } catch (e: Exception) {
+        "---"
     }
 }
