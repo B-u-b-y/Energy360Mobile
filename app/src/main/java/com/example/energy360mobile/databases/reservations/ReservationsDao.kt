@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface ReservationsDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(reservations : ReservationsEntity)
+    suspend fun insert(reservations : ReservationsEntity): Long
 
     @Delete
     suspend fun delete(reservation: ReservationsEntity)

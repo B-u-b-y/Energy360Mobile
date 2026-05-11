@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1090459324616",
+    "project_id": "energy360-9e13f",
+    "storage_bucket": "energy360-9e13f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1090459324616:android:38d9a07c37016ae39bd5fd",
+        "android_client_info": {
+          "package_name": "com.example.energy360mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBo7ruB0-UP_oX-cOou_2jkz55z8cbAS6E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

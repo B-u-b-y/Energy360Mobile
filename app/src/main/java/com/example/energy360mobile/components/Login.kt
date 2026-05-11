@@ -348,6 +348,7 @@ fun Register(viewModel: UserViewModel, rootNavController: NavHostController, inn
                             dob = selectedDateMillis
                         )
                         viewModel.insertUserData(userData)
+                        viewModel.syncUserFromCloud(userData.id.toString()) //Test Funzionamento
                         rootNavController.navigate(Screen.Home.route)
                     } else {
                         dateError = true
