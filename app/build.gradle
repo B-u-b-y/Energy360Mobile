@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.androidx.room.ktx.v261)
     implementation libs.protolite.well.known.types
     ksp(libs.androidx.room.compiler.v261)
+    
 
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit

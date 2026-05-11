@@ -32,6 +32,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.energy360mobile.R
 import com.example.energy360mobile.viewmodels.ReservationsViewModel
+import com.example.energy360mobile.viewmodels.StepsViewModel
 
 sealed class Screen(val route: String, val labelId: Int, val selectedIcon: ImageVector, val unselectedIcon: ImageVector) {
     object Home : Screen("dashboard/home", R.string.home_label, Icons.Default.Home, Icons.Outlined.Home)
@@ -123,8 +124,8 @@ fun BottomBar(navController: NavHostController) {
 }
 
 @Composable
-fun HomeScreen(rootNavController: NavHostController) {
-    HomePage(rootNavController)
+fun HomeScreen(rootNavController: NavHostController, stepsViewModel: StepsViewModel) {
+    HomePage(rootNavController, stepsViewModel)
 }
 
 @Composable
