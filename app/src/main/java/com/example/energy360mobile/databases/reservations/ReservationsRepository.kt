@@ -1,6 +1,5 @@
 package com.example.energy360mobile.databases.reservations
 
-import com.example.energy360mobile.databases.reservations.ReservationsFirebaseDataSource
 import kotlinx.coroutines.flow.Flow
 
 class ReservationsRepository(private val dao: ReservationsDao,private val firebaseDataSource: ReservationsFirebaseDataSource) {
@@ -23,9 +22,9 @@ class ReservationsRepository(private val dao: ReservationsDao,private val fireba
     }
 
     suspend fun insertReservations(reservation: ReservationsEntity) {
-        val generatedId = dao.insert(reservation)
-        val reservationWithRealId = reservation.copy(id = generatedId.toInt())
-        firebaseDataSource.saveReservation(reservationWithRealId)
+        val reservationFirebaseId = firebaseDataSource.saveReservation(reservation)
+        reservation.id = reservationFirebaseId?.id.toString()
+        dao.insert(reservation)
     }
 
     suspend fun deleteReservation(reservation: ReservationsEntity) {

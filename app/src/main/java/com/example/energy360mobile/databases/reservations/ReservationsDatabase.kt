@@ -36,30 +36,43 @@ abstract class ReservationsDatabase : RoomDatabase() {
                 ReservationsEntity(
                     eventName = "Yoga Flow",
                     day = "Lunedì",
-                    date = calendar.apply { set(Calendar.HOUR_OF_DAY, 10); set(Calendar.MINUTE, 0) }.timeInMillis,
+                    date = calendar.apply {
+                        set(Calendar.HOUR_OF_DAY, 10); set(
+                        Calendar.MINUTE,
+                        0
+                    )
+                    }.timeInMillis,
                     place = "Sala A",
-                    isReserved = true
+                    isReserved = true,
+                    id = "",
+                    userId = "",
                 ),
                 ReservationsEntity(
                     eventName = "CrossFit Challenge",
                     day = "Martedì",
                     date = calendar.apply { set(Calendar.HOUR_OF_DAY, 18); set(Calendar.MINUTE, 30) }.timeInMillis,
                     place = "Area Cross",
-                    isReserved = true
+                    isReserved = true,
+                    id = "",
+                    userId = "",
                 ),
                 ReservationsEntity(
                     eventName = "Pilates Posturale",
                     day = "Mercoledì",
                     date = calendar.apply { set(Calendar.HOUR_OF_DAY, 9); set(Calendar.MINUTE, 15) }.timeInMillis,
                     place = "Sala B",
-                    isReserved = true
+                    isReserved = true,
+                    id = "",
+                    userId = "",
                 ),
                 ReservationsEntity(
                     eventName = "Total Body",
                     day = "Venerdì",
                     date = calendar.apply { set(Calendar.HOUR_OF_DAY, 17); set(Calendar.MINUTE, 0) }.timeInMillis,
                     place = "Sala Grande",
-                    isReserved = true
+                    isReserved = true,
+                    id = "",
+                    userId = "",
                 )
             )
             

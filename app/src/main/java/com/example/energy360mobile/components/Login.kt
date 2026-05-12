@@ -341,7 +341,7 @@ fun Register(viewModel: UserViewModel, rootNavController: NavHostController, inn
                     if (selectedDateMillis != null && validateAge(selectedDateMillis)) {
                         dateError = false
                         val userData = UserEntity(
-                            id = null,
+                            id = "",
                             name = name.split(" ").joinToString(" ") { it.replaceFirstChar { char -> char.uppercase() } },
                             email = email,
                             password = password,

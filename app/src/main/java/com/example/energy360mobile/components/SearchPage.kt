@@ -21,15 +21,18 @@ import com.example.energy360mobile.databases.reservations.ReservationsEntity
 import com.example.energy360mobile.databases.services.ServicesEntity
 import com.example.energy360mobile.viewmodels.ReservationsViewModel
 import com.example.energy360mobile.viewmodels.ServicesViewModel
+import com.example.energy360mobile.viewmodels.UserViewModel
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 
 @Composable
-fun SearchPage(viewModel: ServicesViewModel = viewModel(), reservationsViewModel: ReservationsViewModel = viewModel()) {
+fun SearchPage(viewModel: ServicesViewModel = viewModel(), reservationsViewModel: ReservationsViewModel = viewModel(), userViewModel: UserViewModel = viewModel()) {
     var searchQuery by remember { mutableStateOf("") }
 
     val allServices by viewModel.services.collectAsState()
     val currentReservations by reservationsViewModel.reservations.collectAsState()
+    val userData by userViewModel.userData.collectAsState()
 
     val filteredResults = remember(searchQuery, allServices) {
         val currentTime = System.currentTimeMillis()
@@ -153,14 +156,16 @@ fun SearchPage(viewModel: ServicesViewModel = viewModel(), reservationsViewModel
 
                 SearchItemCard(service, isAlreadyReserved = isAlreadyReserved, onReserve = {
                     val sdfDay = SimpleDateFormat("EEEE", Locale.getDefault())
-                    val dayString = sdfDay.format(java.util.Date(service.date))
+                    val dayString = sdfDay.format(Date(service.date))
                     
                     val reservation = ReservationsEntity(
                         eventName = service.name,
                         day = dayString,
                         date = service.date,
                         place = service.place,
-                        isReserved = true
+                        isReserved = true,
+                        userId = userData?.id,
+                        id = ""
                     )
                     reservationsViewModel.insertReservation(reservation)
                 })
@@ -247,7 +252,7 @@ fun SearchItemCard(result: ServicesEntity, isAlreadyReserved: Boolean, onReserve
 fun convertLongToDate(dateMillis: Long): String {
     return try {
         val sdf = SimpleDateFormat("dd/MM/yyyy - HH:mm", Locale.getDefault())
-        val date = java.util.Date(dateMillis)
+        val date = Date(dateMillis)
         sdf.format(date)
     } catch (e: Exception) {
         "---"

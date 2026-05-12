@@ -26,8 +26,9 @@ class UserRepository (private val dao: UserDao,private val firebaseDataSource: U
      * Inserisce/Aggiorna l'utente salvandolo contemporaneamente in locale e sul cloud.
      */
     suspend fun insertUser(user: UserEntity) {
+        val userFirebaseId = firebaseDataSource.saveUser(user) // Backup in background su Firebase
+        user.id = userFirebaseId?.id.toString()
         dao.insert(user)
-        firebaseDataSource.saveUser(user) // Backup in background su Firebase
     }
 
     suspend fun removeUser(){

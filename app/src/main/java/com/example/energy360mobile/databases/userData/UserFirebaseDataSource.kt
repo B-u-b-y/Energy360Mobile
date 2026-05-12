@@ -1,6 +1,7 @@
 package com.example.energy360mobile.databases.userData
 
 import com.example.energy360mobile.databases.userData.UserEntity
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
@@ -27,16 +28,16 @@ class UserFirebaseDataSource {
     /**
      * Salva o aggiorna i dati dell'utente sul Cloud.
      */
-    suspend fun saveUser(user: UserEntity) {
+    suspend fun saveUser(user: UserEntity): DocumentReference? {
         try {
             // NOTA: Assicurati che 'UserEntity' abbia un campo id.
             // Sostituisci 'user.id.toString()' con il campo corretto se si chiama diversamente.
-            db.collection(collectionName)
-                .document(user.id.toString())
-                .set(user)
+            return db.collection(collectionName)
+                .add(user)
                 .await()
         } catch (e: Exception) {
             e.printStackTrace()
         }
+        return null
     }
 }
