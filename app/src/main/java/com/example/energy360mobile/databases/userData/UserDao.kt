@@ -1,6 +1,7 @@
 package com.example.energy360mobile.databases.userData
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -14,4 +15,7 @@ interface UserDao {
 
     @Query("SELECT * FROM userData LIMIT 1")
     fun getUser(): Flow<UserEntity?>
+
+    @Query("DELETE FROM userData")
+    suspend fun clearAll()
 }

@@ -1,6 +1,8 @@
 package com.example.energy360mobile.databases.userData
 
 import com.example.energy360mobile.databases.userData.UserFirebaseDataSource
+import com.google.firebase.firestore.auth.User
+
 class UserRepository (private val dao: UserDao,private val firebaseDataSource: UserFirebaseDataSource){
 
     val user = dao.getUser()
@@ -26,5 +28,9 @@ class UserRepository (private val dao: UserDao,private val firebaseDataSource: U
     suspend fun insertUser(user: UserEntity) {
         dao.insert(user)
         firebaseDataSource.saveUser(user) // Backup in background su Firebase
+    }
+
+    suspend fun removeUser(){
+        dao.clearAll()
     }
 }

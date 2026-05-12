@@ -172,7 +172,9 @@ fun UserProfile(rootNavController: NavHostController,viewModel: UserViewModel = 
             }
             
             OutlinedButton(
-                onClick = { rootNavController.navigate("auth")},
+                onClick = {
+                    viewModel.removeUserData();
+                    rootNavController.navigate("auth") },
                 modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)

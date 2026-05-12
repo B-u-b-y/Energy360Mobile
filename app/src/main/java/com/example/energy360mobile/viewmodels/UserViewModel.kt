@@ -54,4 +54,10 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
             repository.insertUser(userData)
         }
     }
+
+    fun removeUserData(){
+        viewModelScope.launch {
+            repository.removeUser()
+        }
+    }
 }
