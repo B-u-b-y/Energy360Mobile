@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.energy360mobile.databases.reservations.ReservationsDatabase
 import com.example.energy360mobile.databases.reservations.ReservationsEntity
 import com.example.energy360mobile.databases.reservations.ReservationsRepository
+import com.example.energy360mobile.databases.reservations.ReservationsFirebaseDataSource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -20,8 +21,9 @@ class ReservationsViewModel(application: Application) : AndroidViewModel(applica
     init {
         val database = ReservationsDatabase.getDatabase(application)
         val dao = database.reservationsDao()
+        val firebaseDataSource = ReservationsFirebaseDataSource()
 
-        repository = ReservationsRepository(dao)
+        repository = ReservationsRepository(dao,firebaseDataSource)
 
         viewModelScope.launch {
             repository.allReservations
