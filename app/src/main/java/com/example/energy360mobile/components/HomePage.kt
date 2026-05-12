@@ -6,9 +6,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.DirectionsRun
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -18,29 +19,33 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.energy360mobile.R
+import com.example.energy360mobile.viewmodels.StepsViewModel
 
 
 @Composable
-fun HomePage(rootNavController: NavHostController) {
+fun HomePage(rootNavController: NavHostController, stepsViewModel: StepsViewModel = viewModel()) {
     val internalNavController = rememberNavController()
 
     NavHost(
         navController = internalNavController,
         startDestination = "dashboard/home"
     ) {
-        composable("dashboard/home") { HomeDashboard(internalNavController) }
+        composable("dashboard/home") { HomeDashboard(internalNavController, stepsViewModel) }
         composable(Screen.Search.route) { SearchPage() }
         composable("dashboard/services") { ServicesPage(onBack = { internalNavController.popBackStack() }) }
     }
 }
 
 @Composable
-fun HomeDashboard(navController: NavHostController) {
+fun HomeDashboard(navController: NavHostController, stepsViewModel: StepsViewModel) {
+    val stepsEntity by stepsViewModel.steps.collectAsState()
+    val currentSteps = stepsEntity?.steps?.toInt() ?: 0
 
     Column(
         modifier = Modifier
@@ -61,7 +66,6 @@ fun HomeDashboard(navController: NavHostController) {
                     shape = RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp)
                 )
                 .padding(24.dp)
-                .verticalScroll(rememberScrollState())
         ) {
             Column(modifier = Modifier.align(Alignment.CenterStart)) {
                 Text(
@@ -86,10 +90,13 @@ fun HomeDashboard(navController: NavHostController) {
             }
         }
 
+        // Step Counter Card
+        StepCounterCard(steps = currentSteps)
+
         Text(
             text =  stringResource(id = R.string.our_suggestions),
             style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(start = 16.dp, top = 24.dp, bottom = 8.dp)
+            modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
         )
 
         Row(
@@ -135,6 +142,60 @@ fun HomeDashboard(navController: NavHostController) {
         }
 
         Spacer(modifier = Modifier.height(32.dp))
+    }
+}
+
+@Composable
+fun StepCounterCard(steps: Int) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .offset(y = (-20).dp),
+        shape = RoundedCornerShape(20.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(20.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.DirectionsRun,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(32.dp)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Column {
+                    Text(
+                        text = "Passi oggi",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                    Text(
+                        text = "$steps",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+            
+            // Minimalist goal indicator
+            val progress = (steps.toFloat() / 10000f).coerceIn(0f, 1f)
+            CircularProgressIndicator(
+                progress = { progress },
+                modifier = Modifier.size(40.dp),
+                color = MaterialTheme.colorScheme.primary,
+                strokeWidth = 4.dp,
+                trackColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+            )
+        }
     }
 }
 
