@@ -1,6 +1,5 @@
 package com.example.energy360mobile.databases.userData
 
-import com.example.energy360mobile.databases.userData.UserFirebaseDataSource
 class UserRepository (private val dao: UserDao,private val firebaseDataSource: UserFirebaseDataSource){
 
     val user = dao.getUser()
@@ -24,7 +23,30 @@ class UserRepository (private val dao: UserDao,private val firebaseDataSource: U
      * Inserisce/Aggiorna l'utente salvandolo contemporaneamente in locale e sul cloud.
      */
     suspend fun insertUser(user: UserEntity) {
+        val userFirebaseRef = firebaseDataSource.saveUser(user) // Backup in background su Firebase
+        user.id = userFirebaseRef?.id.toString()
         dao.insert(user)
-        firebaseDataSource.saveUser(user) // Backup in background su Firebase
+    }
+
+    suspend fun removeUser(){
+        dao.clearAll()
+    }
+
+    fun checkIfEmailExists(userData: UserEntity): Boolean{
+        try{
+            return firebaseDataSource.insertUserData(userData)
+        }catch (e: Exception){
+
+        }
+        return false
+    }
+
+    fun fetchUserData(email: String): UserEntity? {
+        try {
+            return firebaseDataSource.fetchUserData(email)
+        } catch (e: Exception) {
+            // L'app continuerà a usare la cache di Room senza bloccare l'utente
+        }
+        return null
     }
 }

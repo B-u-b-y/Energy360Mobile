@@ -38,7 +38,7 @@ sealed class Screen(val route: String, val labelId: Int, val selectedIcon: Image
     object Home : Screen("dashboard/home", R.string.home_label, Icons.Default.Home, Icons.Outlined.Home)
     object Search : Screen("search", R.string.search_label, Icons.Default.Search, Icons.Outlined.Search)
     object Reservation : Screen("reservation", R.string.reserve, Icons.Default.CalendarToday, Icons.Outlined.CalendarToday)
-    object Profile : Screen("profile", R.string.profile_label, Icons.Default.Person, Icons.Outlined.Person)
+    object Profile : Screen("profile/home", R.string.profile_label, Icons.Default.Person, Icons.Outlined.Person)
     object Messages : Screen("message_page", R.string.message, Icons.Default.Email, Icons.Outlined.Email)}
 
 @Composable
@@ -101,6 +101,12 @@ fun BottomBar(navController: NavHostController) {
                     if (screen.route == Screen.Home.route) {
                         navController.navigate(Screen.Home.route) {
                             popUpTo(Screen.Home.route) { inclusive = true }
+                            launchSingleTop = true
+                            restoreState = false
+                        }
+                    }else if (screen.route == Screen.Profile.route) {
+                        navController.navigate(Screen.Profile.route) {
+                            popUpTo(Screen.Profile.route) { inclusive = true }
                             launchSingleTop = true
                             restoreState = false
                         }

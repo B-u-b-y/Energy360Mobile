@@ -8,9 +8,10 @@ import androidx.room.PrimaryKey
  */
 @Entity(tableName = "reservations")
 data class ReservationsEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    @PrimaryKey
+    var id: String,
     val eventName: String,
+    val userId: String?,
     val day: String,
     val date: Long,
     val place: String,

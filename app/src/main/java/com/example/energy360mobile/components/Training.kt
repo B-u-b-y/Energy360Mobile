@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.FitnessCenter
@@ -32,6 +33,7 @@ import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class) //Codice trovato per creare il banner dal basso
 @Composable
+fun TrainingSession(onBack: () -> Unit) {
 fun TrainingSession(viewModel: ExercisesViewModel) {
     val exercisesFromDb by viewModel.exercise.collectAsState()
     val completedExercises by viewModel.completedExercises.collectAsState()
@@ -66,6 +68,52 @@ fun TrainingSession(viewModel: ExercisesViewModel) {
     val availableExercises by viewModel.availableExercises.collectAsState()
     val sheetState = rememberModalBottomSheetState() //Banner basso
 
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        // Top header
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.primary,
+                            MaterialTheme.colorScheme.primaryContainer
+                        )
+                    ),
+                    shape = RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp)
+                )
+                .padding(24.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onBack) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(id = R.string.back),
+                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
+                    )
+                }
+
+                Column(modifier = Modifier.padding(start = 8.dp)) {
+                    Text(
+                        text = stringResource(id = R.string.training_intro),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = stringResource(id = R.string.training_title),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
+                        style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold)
+                    )
+                }
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(

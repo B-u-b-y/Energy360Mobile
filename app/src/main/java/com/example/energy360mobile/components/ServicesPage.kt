@@ -14,6 +14,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,17 +29,18 @@ import com.example.energy360mobile.databases.reservations.ReservationsEntity
 import com.example.energy360mobile.databases.services.ServicesEntity
 import com.example.energy360mobile.viewmodels.ReservationsViewModel
 import com.example.energy360mobile.viewmodels.ServicesViewModel
+import com.example.energy360mobile.viewmodels.UserViewModel
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 
 @Composable
-fun ServicesPage(
-    viewModel: ServicesViewModel = viewModel(),
-    reservationsViewModel: ReservationsViewModel = viewModel(),
-    onBack: () -> Unit
-) {
+fun ServicesPage(viewModel: ServicesViewModel = viewModel(), reservationsViewModel: ReservationsViewModel = viewModel(), userViewModel: UserViewModel = viewModel(), onBack: () -> Unit) {
     val services by viewModel.services.collectAsState()
     val currentReservations by reservationsViewModel.reservations.collectAsState()
+    val userData by userViewModel.userData.collectAsState()
+    val scope = rememberCoroutineScope()
 
     val currentTime = System.currentTimeMillis()
     val futureServices = services.filter { it.date > currentTime }
@@ -132,16 +134,20 @@ fun ServicesPage(
                         isAlreadyReserved = isAlreadyReserved,
                         onReserve = {
                             val sdfDay = SimpleDateFormat("EEEE", Locale.getDefault())
-                            val dayString = sdfDay.format(java.util.Date(service.date))
+                            val dayString = sdfDay.format(Date(service.date))
 
                             val reservation = ReservationsEntity(
                                 eventName = service.name,
                                 day = dayString,
                                 date = service.date,
                                 place = service.place,
-                                isReserved = true
+                                isReserved = true,
+                                userId = userData?.id,
+                                id = ""
                             )
-                            reservationsViewModel.insertReservation(reservation)
+                            scope.launch {
+                                reservationsViewModel.insertReservation(reservation)
+                            }
                         }
                     )
                 }

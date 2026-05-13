@@ -2,16 +2,16 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "6daef633c37c78a632b8fb77e6694167",
+    "identityHash": "840d0d4fab04357c121132b34b4e0a3c",
     "entities": [
       {
         "tableName": "reservations",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `eventName` TEXT NOT NULL, `day` TEXT NOT NULL, `date` INTEGER NOT NULL, `place` TEXT NOT NULL, `isReserved` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `eventName` TEXT NOT NULL, `userId` TEXT, `day` TEXT NOT NULL, `date` INTEGER NOT NULL, `place` TEXT NOT NULL, `isReserved` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
-            "affinity": "INTEGER",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -19,6 +19,11 @@
             "columnName": "eventName",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "userId",
+            "columnName": "userId",
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "day",
@@ -46,7 +51,7 @@
           }
         ],
         "primaryKey": {
-          "autoGenerate": true,
+          "autoGenerate": false,
           "columnNames": [
             "id"
           ]
@@ -55,7 +60,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6daef633c37c78a632b8fb77e6694167')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '840d0d4fab04357c121132b34b4e0a3c')"
     ]
   }
 }

@@ -12,24 +12,49 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.energy360mobile.R
+import com.example.energy360mobile.components.noConnection.SearchPageNoConnection
 import com.example.energy360mobile.databases.reservations.ReservationsEntity
 import com.example.energy360mobile.databases.services.ServicesEntity
+import com.example.energy360mobile.utils.ConnectivityObserver
+import com.example.energy360mobile.utils.NetworkObserver
+import com.example.energy360mobile.utils.isNetworkAvailable
 import com.example.energy360mobile.viewmodels.ReservationsViewModel
 import com.example.energy360mobile.viewmodels.ServicesViewModel
+import com.example.energy360mobile.viewmodels.UserViewModel
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 
+
 @Composable
-fun SearchPage(viewModel: ServicesViewModel = viewModel(), reservationsViewModel: ReservationsViewModel = viewModel()) {
+fun SearchPage(){
+    val context = LocalContext.current
+
+    val connectivityObserver = remember { ConnectivityObserver(context) }
+    val status by connectivityObserver.observe().collectAsState(
+        initial = if (isNetworkAvailable(context)) NetworkObserver.Status.Available
+        else NetworkObserver.Status.Unavailable
+    )
+    if(status == NetworkObserver.Status.Available)
+        SearchPageWithConnection()
+    else
+        SearchPageNoConnection()
+}
+@Composable
+fun SearchPageWithConnection(viewModel: ServicesViewModel = viewModel(), reservationsViewModel: ReservationsViewModel = viewModel(), userViewModel: UserViewModel = viewModel()) {
     var searchQuery by remember { mutableStateOf("") }
+    val scope = rememberCoroutineScope()
 
     val allServices by viewModel.services.collectAsState()
     val currentReservations by reservationsViewModel.reservations.collectAsState()
+    val userData by userViewModel.userData.collectAsState()
 
     val filteredResults = remember(searchQuery, allServices) {
         val currentTime = System.currentTimeMillis()
@@ -153,16 +178,20 @@ fun SearchPage(viewModel: ServicesViewModel = viewModel(), reservationsViewModel
 
                 SearchItemCard(service, isAlreadyReserved = isAlreadyReserved, onReserve = {
                     val sdfDay = SimpleDateFormat("EEEE", Locale.getDefault())
-                    val dayString = sdfDay.format(java.util.Date(service.date))
+                    val dayString = sdfDay.format(Date(service.date))
                     
                     val reservation = ReservationsEntity(
                         eventName = service.name,
                         day = dayString,
                         date = service.date,
                         place = service.place,
-                        isReserved = true
+                        isReserved = true,
+                        userId = userData?.id,
+                        id = ""
                     )
-                    reservationsViewModel.insertReservation(reservation)
+                    scope.launch{
+                        reservationsViewModel.insertReservation(reservation)
+                    }
                 })
             }
         }
@@ -247,7 +276,7 @@ fun SearchItemCard(result: ServicesEntity, isAlreadyReserved: Boolean, onReserve
 fun convertLongToDate(dateMillis: Long): String {
     return try {
         val sdf = SimpleDateFormat("dd/MM/yyyy - HH:mm", Locale.getDefault())
-        val date = java.util.Date(dateMillis)
+        val date = Date(dateMillis)
         sdf.format(date)
     } catch (e: Exception) {
         "---"

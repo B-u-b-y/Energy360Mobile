@@ -27,13 +27,30 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.energy360mobile.R
 import com.example.energy360mobile.viewmodels.UserViewModel
 import java.text.SimpleDateFormat
 import java.util.Locale
 
+
 @Composable
-fun UserProfile(rootNavController: NavHostController,viewModel: UserViewModel = viewModel() ) {
+fun UserProfile(rootNavController: NavHostController,viewModel: UserViewModel = viewModel()){
+    val internalNavController = rememberNavController()
+
+    NavHost(
+        navController = internalNavController,
+        startDestination = "profile/home"
+    ){
+        composable("profile/home"){UserProfileDashboard(rootNavController, internalNavController)}
+        composable("profile/training_page"){TrainingSession(onBack = { internalNavController.popBackStack() })}
+    }
+}
+
+@Composable
+fun UserProfileDashboard(rootNavController: NavHostController, internalNavController: NavHostController, viewModel: UserViewModel = viewModel() ) {
     val userData by viewModel.userData.collectAsState()
 
     Column(
@@ -86,7 +103,7 @@ fun UserProfile(rootNavController: NavHostController,viewModel: UserViewModel = 
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
                 )
                 Text(
-                    text = if (userData != null) "ID: ${userData?.id}" else "Socio dal 2023",
+                    text = if (userData != null) "${stringResource(id = R.string.user_code)}: ${userData?.id}" else "",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
                 )
@@ -115,8 +132,6 @@ fun UserProfile(rootNavController: NavHostController,viewModel: UserViewModel = 
                     ProfileInfoRow(Icons.Default.Email, "Email", userData?.email.toString())
                     HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
                     ProfileInfoRow(Icons.Default.Cake, stringResource(id = R.string.dbo), userData?.let { convertMillisToDate(it.dob) } ?: "---")
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
-                    ProfileInfoRow(Icons.Default.Badge, stringResource(id = R.string.user_code), "${userData?.id ?: "---"}")
                 }
             }
 
@@ -135,8 +150,7 @@ fun UserProfile(rootNavController: NavHostController,viewModel: UserViewModel = 
                     icon = Icons.Default.FitnessCenter,
                     isValid = true,
                     onClick = {
-                        Log.d("Navigation", "Navigating to training_page")
-                        rootNavController.navigate("training_page")
+                        internalNavController.navigate("profile/training_page")
                     }
                 )
                 StatusCard(
@@ -172,7 +186,9 @@ fun UserProfile(rootNavController: NavHostController,viewModel: UserViewModel = 
             }
             
             OutlinedButton(
-                onClick = { rootNavController.navigate("auth")},
+                onClick = {
+                    viewModel.removeUserData();
+                    rootNavController.navigate("auth") },
                 modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)

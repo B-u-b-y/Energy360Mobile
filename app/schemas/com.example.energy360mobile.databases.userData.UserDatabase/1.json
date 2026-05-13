@@ -2,16 +2,17 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "fc95329ef0f74de9eef2208ea60f706b",
+    "identityHash": "ca8bd520ed78ab5f07c389cbed689cf4",
     "entities": [
       {
         "tableName": "userData",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER, `name` TEXT NOT NULL, `password` TEXT NOT NULL, `email` TEXT NOT NULL, `dob` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `password` TEXT NOT NULL, `email` TEXT NOT NULL, `dob` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
-            "affinity": "INTEGER"
+            "affinity": "TEXT",
+            "notNull": true
           },
           {
             "fieldPath": "name",
@@ -48,7 +49,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fc95329ef0f74de9eef2208ea60f706b')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ca8bd520ed78ab5f07c389cbed689cf4')"
     ]
   }
 }

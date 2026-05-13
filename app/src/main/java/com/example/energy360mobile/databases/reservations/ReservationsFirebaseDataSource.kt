@@ -1,8 +1,11 @@
 package com.example.energy360mobile.databases.reservations
 
 import com.example.energy360mobile.databases.reservations.ReservationsEntity
+import com.google.android.gms.tasks.Tasks
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
+import java.util.concurrent.TimeUnit
 
 class ReservationsFirebaseDataSource {
 
@@ -22,18 +25,33 @@ class ReservationsFirebaseDataSource {
         }
     }
 
+    fun checkReservation(reservation: ReservationsEntity): Boolean {
+        return try{
+            val task = db.collection(collectionName)
+                .whereEqualTo("userId", reservation.userId)
+                .whereEqualTo("eventName", reservation.eventName)
+                .whereEqualTo("date", reservation.date)
+                .get()
+
+            val snapshot = Tasks.await(task, 5, TimeUnit.SECONDS)
+            if(!snapshot.isEmpty)
+                snapshot.documents.first().data != null
+            else false
+        }catch(e: Exception){false}
+    }
+
     /**
      * Salva o aggiorna una prenotazione sul Cloud.
      */
-    suspend fun saveReservation(reservation: ReservationsEntity) {
+    suspend fun saveReservation(reservation: ReservationsEntity): DocumentReference? {
         try {
-            db.collection(collectionName)
-                .document(reservation.id.toString())
-                .set(reservation)
+            return db.collection(collectionName)
+                .add(reservation)
                 .await()
         } catch (e: Exception) {
             e.printStackTrace()
         }
+        return null
     }
 
     /**

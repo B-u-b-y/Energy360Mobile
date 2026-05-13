@@ -1,16 +1,19 @@
 package com.example.energy360mobile.viewmodels
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.energy360mobile.databases.userData.UserDatabase
 import com.example.energy360mobile.databases.userData.UserEntity
 import com.example.energy360mobile.databases.userData.UserRepository
 import com.example.energy360mobile.databases.userData.UserFirebaseDataSource
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * ViewModel that handles the user logic between DB and UI
@@ -20,7 +23,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: UserRepository
 
     // Handle subscription and deletion
-    private val userDataFlow: StateFlow<UserEntity?>
+    private var userDataFlow: StateFlow<UserEntity?>
 
     val userData: StateFlow<UserEntity?>
         get() = userDataFlow
@@ -49,9 +52,27 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun insertUserData(userData: UserEntity) {
+    fun removeUserData(){
         viewModelScope.launch {
-            repository.insertUser(userData)
+            repository.removeUser()
+        }
+    }
+
+    suspend fun registerUser(userData: UserEntity) : Boolean{
+        return withContext(Dispatchers.IO) {
+            repository.checkIfEmailExists(userData)
+        }
+    }
+
+    suspend fun checkCredentials(email: String, password: String): Boolean{
+        return withContext(Dispatchers.IO) {
+            val fetchedUser = repository.fetchUserData(email)
+            if (fetchedUser != null && fetchedUser.email == email && fetchedUser.password == password) {
+                repository.insertUser(fetchedUser)
+                true
+            } else {
+                false
+            }
         }
     }
 }
