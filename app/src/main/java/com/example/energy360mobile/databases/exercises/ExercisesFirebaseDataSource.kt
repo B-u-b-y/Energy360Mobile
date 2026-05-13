@@ -20,9 +20,6 @@ class ExercisesFirebaseDataSource {
         return try {
             // Chiamata di rete: prende tutti i documenti e attende il risultato con await()
             val snapshot = db.collection(collectionName).get().await()
-
-            // Magia di Firestore: converte in automatico i dati JSON in oggetti Kotlin!
-            // (Nota: ExercisesEntity deve avere campi che corrispondono ai nomi su Firebase)
             snapshot.toObjects(ExercisesEntity::class.java)
         } catch (e: Exception) {
             e.printStackTrace()

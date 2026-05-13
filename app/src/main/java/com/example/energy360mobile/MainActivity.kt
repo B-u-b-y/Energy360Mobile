@@ -38,6 +38,7 @@ import com.example.energy360mobile.components.SearchScreen
 import com.example.energy360mobile.components.ServicesPage
 import com.example.energy360mobile.components.TrainingSession
 import com.example.energy360mobile.theme.Energy360MobileTheme
+import com.example.energy360mobile.viewmodels.ExercisesViewModel
 import com.example.energy360mobile.viewmodels.ReservationsViewModel
 import com.example.energy360mobile.viewmodels.ServicesViewModel
 import com.example.energy360mobile.viewmodels.StepsViewModel
@@ -110,6 +111,7 @@ fun MainApp(stepsViewModel : StepsViewModel) {
     val userViewModel : UserViewModel = viewModel()
     val serviceViewModel : ServicesViewModel = viewModel()
     val reservationsViewModel : ReservationsViewModel = viewModel()
+    val exercisesViewModel : ExercisesViewModel = viewModel()
 
     val userData by userViewModel.userData.collectAsState()
 
@@ -143,7 +145,7 @@ fun MainApp(stepsViewModel : StepsViewModel) {
             composable(Screen.Search.route) { SearchScreen() }
             composable(Screen.Reservation.route) { ReservationScreen(reservationsViewModel) }
             composable(Screen.Profile.route) { ProfileScreen(navController) }
-            composable("training_page") { TrainingSession() }
+            composable("training_page") { TrainingSession(exercisesViewModel) }
             composable("chat_detail/{senderName}") { backStackEntry ->
                 val senderName = backStackEntry.arguments?.getString("senderName") ?: ""
                 ChatDetailScreen(senderName = senderName, onBack = { navController.popBackStack() })

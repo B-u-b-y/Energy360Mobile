@@ -14,5 +14,8 @@ data class ExercisesEntity(
     val sets: Int,
     val reps: String,
     val day: String,
-    val isCompleted: Boolean = false
+    val isCompleted: Boolean = false,
+    val date: Long = System.currentTimeMillis(),
+    val weights: String = "",
+    val actualReps: String = ""
 )

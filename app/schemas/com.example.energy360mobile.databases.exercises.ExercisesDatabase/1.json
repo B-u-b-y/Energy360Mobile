@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "516bdc76d7d5dee4efcd19459352572e",
+    "identityHash": "3237cfeccb6ad1612821e1fe1461aa11",
     "entities": [
       {
         "tableName": "exercises",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `sets` INTEGER NOT NULL, `reps` TEXT NOT NULL, `day` TEXT NOT NULL, `isCompleted` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `sets` INTEGER NOT NULL, `reps` TEXT NOT NULL, `day` TEXT NOT NULL, `isCompleted` INTEGER NOT NULL, `date` INTEGER NOT NULL, `weights` TEXT NOT NULL, `actualReps` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -43,6 +43,24 @@
             "columnName": "isCompleted",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "date",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "weights",
+            "columnName": "weights",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "actualReps",
+            "columnName": "actualReps",
+            "affinity": "TEXT",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -55,7 +73,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '516bdc76d7d5dee4efcd19459352572e')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3237cfeccb6ad1612821e1fe1461aa11')"
     ]
   }
 }

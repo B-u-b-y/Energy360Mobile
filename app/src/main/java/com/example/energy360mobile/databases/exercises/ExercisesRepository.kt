@@ -13,8 +13,16 @@ class ExercisesRepository(private val dao: ExercisesDao, private val firebaseDat
         return dao.getExercisesByDay(day)
     }
 
-    // funzione di sincronizzazione
-    // Questa verrà chiamata all'apertura dell'app o con un refresh
+    val completedExercises: Flow<List<ExercisesEntity>> = dao.getCompletedExercises()
+
+    suspend fun updateExerciseCompletion(id: Int, completed: Boolean, weights: String, actualReps: String) {
+        dao.updateExerciseCompletion(id, completed, weights, actualReps)
+    }
+
+    suspend fun getAvailableExercisesFromCloud(): List<ExercisesEntity> {
+        return firebaseDataSource.fetchAllExercises()
+    }
+
     suspend fun syncExercisesFromCloud() {
         try {
             val remoteExercises = firebaseDataSource.fetchAllExercises()
@@ -26,10 +34,9 @@ class ExercisesRepository(private val dao: ExercisesDao, private val firebaseDat
         }
     }
 
-    // Salva sia in locale che sul cloud
+    // Salva solo nel database locale (Room) per la sessione corrente
     suspend fun insertExercise(exercise: ExercisesEntity) {
         dao.insert(exercise)
-        firebaseDataSource.saveExercise(exercise) // Invia a Firebase in background
     }
 
     suspend fun deleteAll() {
