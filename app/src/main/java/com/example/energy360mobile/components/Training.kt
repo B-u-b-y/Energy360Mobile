@@ -2,7 +2,6 @@ package com.example.energy360mobile.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -26,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.energy360mobile.R
 import com.example.energy360mobile.databases.exercises.ExercisesEntity
 import com.example.energy360mobile.viewmodels.ExercisesViewModel
@@ -33,11 +33,10 @@ import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class) //Codice trovato per creare il banner dal basso
 @Composable
-fun TrainingSession(onBack: () -> Unit) {
-fun TrainingSession(viewModel: ExercisesViewModel) {
+fun TrainingSession(viewModel: ExercisesViewModel = viewModel(), onBack: () -> Unit ) {
     val exercisesFromDb by viewModel.exercise.collectAsState()
     val completedExercises by viewModel.completedExercises.collectAsState()
-    
+
     val dayKeys = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
     val dayLabels = listOf(
         stringResource(id = R.string.monday_day),
@@ -68,58 +67,12 @@ fun TrainingSession(viewModel: ExercisesViewModel) {
     val availableExercises by viewModel.availableExercises.collectAsState()
     val sheetState = rememberModalBottomSheetState() //Banner basso
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        // Top header
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp)
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.primary,
-                            MaterialTheme.colorScheme.primaryContainer
-                        )
-                    ),
-                    shape = RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp)
-                )
-                .padding(24.dp)
-        ) {
-            Row(
-                modifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = onBack) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(id = R.string.back),
-                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
-                    )
-                }
-
-                Column(modifier = Modifier.padding(start = 8.dp)) {
-                    Text(
-                        text = stringResource(id = R.string.training_intro),
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Text(
-                        text = stringResource(id = R.string.training_title),
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
-                        style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold)
-                    )
-                }
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { 
+                onClick = {
                     viewModel.fetchAvailableExercises()
-                    showAddSheet = true 
+                    showAddSheet = true
                 },
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
@@ -147,17 +100,32 @@ fun TrainingSession(viewModel: ExercisesViewModel) {
                     )
                     .padding(24.dp)
             ) {
-                Column(modifier = Modifier.align(Alignment.CenterStart)) {
-                    Text(
-                        text = stringResource(id = R.string.training_intro),
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Text(
-                        text = stringResource(id = R.string.training_title),
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
-                        style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold)
-                    )
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(id = R.string.back),
+                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
+                        )
+                    }
+
+                    Column(modifier = Modifier.padding(start = 8.dp)) {
+                        Text(
+                            text = stringResource(id = R.string.training_intro),
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            text = stringResource(id = R.string.training_title),
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
+                            style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold)
+                        )
+                    }
                 }
             }
 
@@ -228,7 +196,7 @@ fun TrainingSession(viewModel: ExercisesViewModel) {
                         }
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(80.dp))
             }
         }
@@ -274,7 +242,7 @@ fun AddExerciseContent(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text("Scegli un esercizio dal Database", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-        
+
         if (availableExercises.isEmpty()) {
             Box(modifier = Modifier.fillMaxWidth().height(100.dp), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
@@ -289,9 +257,9 @@ fun AddExerciseContent(
                 items(availableExercises.size) { index ->
                     val exercise = availableExercises[index]
                     val isSelected = selectedExercise?.id == exercise.id
-                    
+
                     Surface(
-                        onClick = { 
+                        onClick = {
                             selectedExercise = exercise
                             sets = exercise.sets.toString()
                             reps = exercise.reps
@@ -313,9 +281,9 @@ fun AddExerciseContent(
                 }
             }
         }
-        
+
         HorizontalDivider()
-        
+
         Text("Dettagli Allenamento", style = MaterialTheme.typography.titleMedium)
 
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -332,7 +300,7 @@ fun AddExerciseContent(
                 modifier = Modifier.weight(1f)
             )
         }
-        
+
         Button(
             onClick = {
                 selectedExercise?.let {
@@ -378,10 +346,10 @@ fun ExerciseCard(exercise: ExercisesEntity, onComplete: (Boolean, List<String>, 
     val initialWeights = if (exercise.weights.isNotEmpty()) exercise.weights.split(",") else List(exercise.sets) { "" }
     val initialReps = if (exercise.actualReps.isNotEmpty()) exercise.actualReps.split(",") else List(exercise.sets) { "" }
 
-    val weights = remember { mutableStateListOf<String>().apply { 
+    val weights = remember { mutableStateListOf<String>().apply {
         addAll(initialWeights.let { if (it.size < exercise.sets) it + List(exercise.sets - it.size) { "" } else it })
     } }
-    val repsDone = remember { mutableStateListOf<String>().apply { 
+    val repsDone = remember { mutableStateListOf<String>().apply {
         addAll(initialReps.let { if (it.size < exercise.sets) it + List(exercise.sets - it.size) { "" } else it })
     } }
 
@@ -422,7 +390,7 @@ fun ExerciseCard(exercise: ExercisesEntity, onComplete: (Boolean, List<String>, 
                     )
                 }
 
-                IconButton(onClick = { 
+                IconButton(onClick = {
                     onComplete(!exercise.isCompleted, weights.toList(), repsDone.toList())
                 }) {
                     Icon(
