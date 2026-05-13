@@ -143,7 +143,9 @@ fun MainApp(stepsViewModel : StepsViewModel) {
             startingDestination = startingDestination,
             userViewModel = userViewModel,
             stepsViewModel = stepsViewModel,
-            reservationsViewModel = reservationsViewModel
+            reservationsViewModel = reservationsViewModel,
+            exercisesViewModel = exercisesViewModel
+
         )
     }
 }

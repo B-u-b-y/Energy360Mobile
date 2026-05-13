@@ -18,7 +18,8 @@ fun NavGraph(navController: NavHostController,
     startingDestination: String,
     userViewModel: UserViewModel,
     stepsViewModel: StepsViewModel,
-    reservationsViewModel: ReservationsViewModel
+    reservationsViewModel: ReservationsViewModel,
+    exercisesViewModel: ExercisesViewModel
 ) {
     NavHost(
         navController = navController,
@@ -31,7 +32,7 @@ fun NavGraph(navController: NavHostController,
         composable(Screen.Search.route) { SearchScreen() }
         composable(Screen.Reservation.route) { ReservationScreen(reservationsViewModel) }
         composable(Screen.Profile.route) { ProfileScreen(navController) }
-        composable("training_page") { TrainingSession(onBack = { navController.popBackStack() }) }
+        composable("training_page") { TrainingSession(exercisesViewModel ,onBack = { navController.popBackStack() }) }
         composable("chat_detail/{senderName}") { backStackEntry ->
             val senderName = backStackEntry.arguments?.getString("senderName") ?: ""
             ChatDetailScreen(senderName = senderName, onBack = { navController.popBackStack() })

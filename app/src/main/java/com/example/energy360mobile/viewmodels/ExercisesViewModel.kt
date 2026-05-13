@@ -34,8 +34,9 @@ class ExercisesViewModel(application: Application) : AndroidViewModel(applicatio
 
         repository = ExercisesRepository(dao,firebaseDataSource)
         viewModelScope.launch {
-            repository.completedExercises
-                .collect { completedExercisesFlow.value = it }
+            repository.allExercises.collect {
+                exerciseFlow.value = it
+            }
         }
     }
 

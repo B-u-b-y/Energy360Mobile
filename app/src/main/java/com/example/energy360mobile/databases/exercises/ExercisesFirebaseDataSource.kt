@@ -1,5 +1,6 @@
 package com.example.energy360mobile.databases.exercises
 
+import android.util.Log
 import com.example.energy360mobile.databases.exercises.ExercisesEntity
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
@@ -20,9 +21,11 @@ class ExercisesFirebaseDataSource {
         return try {
             // Chiamata di rete: prende tutti i documenti e attende il risultato con await()
             val snapshot = db.collection(collectionName).get().await()
+            Log.d("dio",snapshot.toString())
             snapshot.toObjects(ExercisesEntity::class.java)
         } catch (e: Exception) {
             e.printStackTrace()
+
             emptyList() // Se salta la connessione, ritorniamo una lista vuota
         }
     }

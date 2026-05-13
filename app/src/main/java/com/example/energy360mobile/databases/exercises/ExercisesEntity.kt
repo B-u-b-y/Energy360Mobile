@@ -10,12 +10,12 @@ import androidx.room.PrimaryKey
 data class ExercisesEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val name: String,
-    val sets: Int,
-    val reps: String,
-    val day: String,
-    val isCompleted: Boolean = false,
-    val date: Long = System.currentTimeMillis(),
-    val weights: String = "",
-    val actualReps: String = ""
+    var name: String = "",
+    var sets: Int = 0,
+    var reps: String = "",
+    var day: String = "",
+    var isCompleted: Boolean = false,
+    var date: Long = System.currentTimeMillis(),
+    var weights: String = "",
+    var actualReps: String = ""
 )
