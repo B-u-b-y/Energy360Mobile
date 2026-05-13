@@ -27,13 +27,30 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.energy360mobile.R
 import com.example.energy360mobile.viewmodels.UserViewModel
 import java.text.SimpleDateFormat
 import java.util.Locale
 
+
 @Composable
-fun UserProfile(rootNavController: NavHostController,viewModel: UserViewModel = viewModel() ) {
+fun UserProfile(rootNavController: NavHostController,viewModel: UserViewModel = viewModel()){
+    val internalNavController = rememberNavController()
+
+    NavHost(
+        navController = internalNavController,
+        startDestination = "profile/home"
+    ){
+        composable("profile/home"){UserProfileDashboard(rootNavController, internalNavController)}
+        composable("profile/training_page"){TrainingSession(onBack = { internalNavController.popBackStack() })}
+    }
+}
+
+@Composable
+fun UserProfileDashboard(rootNavController: NavHostController, internalNavController: NavHostController, viewModel: UserViewModel = viewModel() ) {
     val userData by viewModel.userData.collectAsState()
 
     Column(
@@ -133,8 +150,7 @@ fun UserProfile(rootNavController: NavHostController,viewModel: UserViewModel = 
                     icon = Icons.Default.FitnessCenter,
                     isValid = true,
                     onClick = {
-                        Log.d("Navigation", "Navigating to training_page")
-                        rootNavController.navigate("training_page")
+                        internalNavController.navigate("profile/training_page")
                     }
                 )
                 StatusCard(

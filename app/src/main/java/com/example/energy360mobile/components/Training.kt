@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material3.*
@@ -41,7 +42,7 @@ val workoutPlan = listOf(
 )
 
 @Composable
-fun TrainingSession() {
+fun TrainingSession(onBack: () -> Unit) {
     val dayKeys = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
     val dayLabels = listOf(
         stringResource(id = R.string.monday_day),
@@ -80,23 +81,41 @@ fun TrainingSession() {
                 .height(200.dp)
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primaryContainer)
+                        colors = listOf(
+                            MaterialTheme.colorScheme.primary,
+                            MaterialTheme.colorScheme.primaryContainer
+                        )
                     ),
                     shape = RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp)
                 )
                 .padding(24.dp)
         ) {
-            Column(modifier = Modifier.align(Alignment.CenterStart)) {
-                Text(
-                    text = stringResource(id = R.string.training_intro),
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Text(
-                    text = stringResource(id = R.string.training_title),
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
-                    style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold)
-                )
+            Row(
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onBack) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(id = R.string.back),
+                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
+                    )
+                }
+
+                Column(modifier = Modifier.padding(start = 8.dp)) {
+                    Text(
+                        text = stringResource(id = R.string.training_intro),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = stringResource(id = R.string.training_title),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
+                        style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold)
+                    )
+                }
             }
         }
 

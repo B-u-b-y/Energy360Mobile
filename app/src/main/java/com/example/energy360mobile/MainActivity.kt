@@ -32,6 +32,7 @@ import com.example.energy360mobile.components.ChatDetailScreen
 import com.example.energy360mobile.components.Execution
 import com.example.energy360mobile.components.HomeScreen
 import com.example.energy360mobile.components.MessagesScreen
+import com.example.energy360mobile.components.NavGraph
 import com.example.energy360mobile.components.ProfileScreen
 import com.example.energy360mobile.components.ReservationScreen
 import com.example.energy360mobile.components.Screen
@@ -134,23 +135,13 @@ fun MainApp(stepsViewModel : StepsViewModel) {
             }
         }
     ) { innerPadding ->
-        NavHost(
+        NavGraph(
             navController = navController,
-            startDestination = startingDestination,
-            modifier = Modifier.padding(if (currentRoute in mainScreens) innerPadding else PaddingValues(0.dp))
-        ) {
-            composable("auth") { Execution(userViewModel, navController) }
-            composable(Screen.Home.route) { HomeScreen(navController, stepsViewModel) }
-            composable(Screen.Messages.route) { MessagesScreen(navController) }
-            composable(Screen.Search.route) { SearchScreen() }
-            composable(Screen.Reservation.route) { ReservationScreen(reservationsViewModel) }
-            composable(Screen.Profile.route) { ProfileScreen(navController) }
-            composable("training_page") { TrainingSession() }
-            composable("chat_detail/{senderName}") { backStackEntry ->
-                val senderName = backStackEntry.arguments?.getString("senderName") ?: ""
-                ChatDetailScreen(senderName = senderName, onBack = { navController.popBackStack() })
-            }
-            composable("services") {ServicesPage(onBack = { navController.popBackStack() })}
-        }
+            paddingValues = if (currentRoute in mainScreens) innerPadding else PaddingValues(0.dp),
+            startingDestination = startingDestination,
+            userViewModel = userViewModel,
+            stepsViewModel = stepsViewModel,
+            reservationsViewModel = reservationsViewModel
+        )
     }
 }
