@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -38,6 +39,7 @@ import com.example.energy360mobile.components.SearchScreen
 import com.example.energy360mobile.components.ServicesPage
 import com.example.energy360mobile.components.TrainingSession
 import com.example.energy360mobile.theme.Energy360MobileTheme
+import com.example.energy360mobile.utils.isNetworkAvailable
 import com.example.energy360mobile.viewmodels.ReservationsViewModel
 import com.example.energy360mobile.viewmodels.ServicesViewModel
 import com.example.energy360mobile.viewmodels.StepsViewModel

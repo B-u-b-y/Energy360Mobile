@@ -25,6 +25,6 @@ interface ReservationsDao {
     @Query("DELETE FROM reservations")
     suspend fun deleteAll()
 
-
-
+    @Query("SELECT EXISTS(SELECT 1 FROM reservations WHERE eventName = :eventName AND date = :date)")
+    suspend fun isAlreadyReserved(eventName: String, date: Long): Boolean
 }

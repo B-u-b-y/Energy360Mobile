@@ -21,15 +21,19 @@ class ReservationsRepository(private val dao: ReservationsDao,private val fireba
         }
     }
 
-    suspend fun insertReservations(reservation: ReservationsEntity) {
-        val reservationFirebaseId = firebaseDataSource.saveReservation(reservation)
-        reservation.id = reservationFirebaseId?.id.toString()
-        dao.insert(reservation)
+     suspend fun insertReservations(reservation: ReservationsEntity) {
+        val existsReservation: Boolean = dao.isAlreadyReserved(reservation.eventName, reservation.date)
+        val existsReservationFirebase: Boolean = firebaseDataSource.checkReservation(reservation)
+         if (!existsReservation && !existsReservationFirebase) {
+            val reservationFirebaseId = firebaseDataSource.saveReservation(reservation)
+            reservation.id = reservationFirebaseId?.id.toString()
+            dao.insert(reservation)
+        }
     }
 
     suspend fun deleteReservation(reservation: ReservationsEntity) {
         dao.delete(reservation)
-        firebaseDataSource.deleteReservation(reservation.id.toString())
+        firebaseDataSource.deleteReservation(reservation.id)
     }
 
     suspend fun deleteAll() {

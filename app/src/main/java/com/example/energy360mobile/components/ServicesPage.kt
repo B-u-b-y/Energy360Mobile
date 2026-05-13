@@ -14,6 +14,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,6 +30,7 @@ import com.example.energy360mobile.databases.services.ServicesEntity
 import com.example.energy360mobile.viewmodels.ReservationsViewModel
 import com.example.energy360mobile.viewmodels.ServicesViewModel
 import com.example.energy360mobile.viewmodels.UserViewModel
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -38,6 +40,7 @@ fun ServicesPage(viewModel: ServicesViewModel = viewModel(), reservationsViewMod
     val services by viewModel.services.collectAsState()
     val currentReservations by reservationsViewModel.reservations.collectAsState()
     val userData by userViewModel.userData.collectAsState()
+    val scope = rememberCoroutineScope()
 
     val currentTime = System.currentTimeMillis()
     val futureServices = services.filter { it.date > currentTime }
@@ -142,7 +145,9 @@ fun ServicesPage(viewModel: ServicesViewModel = viewModel(), reservationsViewMod
                                 userId = userData?.id,
                                 id = ""
                             )
-                            reservationsViewModel.insertReservation(reservation)
+                            scope.launch {
+                                reservationsViewModel.insertReservation(reservation)
+                            }
                         }
                     )
                 }

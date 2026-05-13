@@ -12,23 +12,45 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.energy360mobile.R
+import com.example.energy360mobile.components.noConnection.SearchPageNoConnection
 import com.example.energy360mobile.databases.reservations.ReservationsEntity
 import com.example.energy360mobile.databases.services.ServicesEntity
+import com.example.energy360mobile.utils.ConnectivityObserver
+import com.example.energy360mobile.utils.NetworkObserver
+import com.example.energy360mobile.utils.isNetworkAvailable
 import com.example.energy360mobile.viewmodels.ReservationsViewModel
 import com.example.energy360mobile.viewmodels.ServicesViewModel
 import com.example.energy360mobile.viewmodels.UserViewModel
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+
 @Composable
-fun SearchPage(viewModel: ServicesViewModel = viewModel(), reservationsViewModel: ReservationsViewModel = viewModel(), userViewModel: UserViewModel = viewModel()) {
+fun SearchPage(){
+    val context = LocalContext.current
+
+    val connectivityObserver = remember { ConnectivityObserver(context) }
+    val status by connectivityObserver.observe().collectAsState(
+        initial = if (isNetworkAvailable(context)) NetworkObserver.Status.Available
+        else NetworkObserver.Status.Unavailable
+    )
+    if(status == NetworkObserver.Status.Available)
+        SearchPageWithConnection()
+    else
+        SearchPageNoConnection()
+}
+@Composable
+fun SearchPageWithConnection(viewModel: ServicesViewModel = viewModel(), reservationsViewModel: ReservationsViewModel = viewModel(), userViewModel: UserViewModel = viewModel()) {
     var searchQuery by remember { mutableStateOf("") }
+    val scope = rememberCoroutineScope()
 
     val allServices by viewModel.services.collectAsState()
     val currentReservations by reservationsViewModel.reservations.collectAsState()
@@ -167,7 +189,9 @@ fun SearchPage(viewModel: ServicesViewModel = viewModel(), reservationsViewModel
                         userId = userData?.id,
                         id = ""
                     )
-                    reservationsViewModel.insertReservation(reservation)
+                    scope.launch{
+                        reservationsViewModel.insertReservation(reservation)
+                    }
                 })
             }
         }

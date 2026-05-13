@@ -86,7 +86,7 @@ fun UserProfile(rootNavController: NavHostController,viewModel: UserViewModel = 
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
                 )
                 Text(
-                    text = if (userData != null) "ID: ${userData?.id}" else "Socio dal 2023",
+                    text = if (userData != null) "${stringResource(id = R.string.user_code)}: ${userData?.id}" else "",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
                 )
@@ -115,8 +115,6 @@ fun UserProfile(rootNavController: NavHostController,viewModel: UserViewModel = 
                     ProfileInfoRow(Icons.Default.Email, "Email", userData?.email.toString())
                     HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
                     ProfileInfoRow(Icons.Default.Cake, stringResource(id = R.string.dbo), userData?.let { convertMillisToDate(it.dob) } ?: "---")
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
-                    ProfileInfoRow(Icons.Default.Badge, stringResource(id = R.string.user_code), "${userData?.id ?: "---"}")
                 }
             }
 

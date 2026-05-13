@@ -78,4 +78,6 @@
     <string name="already_reserved">Booked</string>
     <string name="promo_yoga_desc">20% discount for new members</string>
     <string name="promo_openday_desc">Come and try for free</string>
+    <string name="existing_user">Email already exists</string>
+    <string name="no_connection">No connection</string>
 </resources>

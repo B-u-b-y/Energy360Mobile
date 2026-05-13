@@ -78,4 +78,6 @@
     <string name="already_reserved">Prenotato</string>
     <string name="promo_yoga_desc">Sconto 20% per i nuovi iscritti</string>
     <string name="promo_openday_desc">Vieni a provare gratuitamente</string>
+    <string name="existing_user">Email esistente</string>
+    <string name="no_connection">Connessione assente</string>
 </resources>

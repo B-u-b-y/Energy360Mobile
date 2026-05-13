@@ -1,5 +1,6 @@
 package com.example.energy360mobile.components
 
+import androidx.activity.result.launch
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -32,16 +33,24 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.Period
 import java.time.ZoneId
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.energy360mobile.R
+import com.example.energy360mobile.components.noConnection.LoginNoConnection
+import com.example.energy360mobile.components.noConnection.RegisterNoConnection
 import com.example.energy360mobile.databases.userData.UserEntity
+import com.example.energy360mobile.utils.isNetworkAvailable
 import com.example.energy360mobile.viewmodels.UserViewModel
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.rememberDatePickerState
+import androidx.lifecycle.observe
+import com.example.energy360mobile.utils.ConnectivityObserver
+import com.example.energy360mobile.utils.NetworkObserver
+import kotlinx.coroutines.launch
 import java.util.Date
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -49,16 +58,32 @@ import java.util.Locale
 @Composable
 fun Execution(viewModel: UserViewModel, rootNavController: NavHostController) {
     val innerNavController = rememberNavController()
+    val context = LocalContext.current
+
+    val connectivityObserver = remember { ConnectivityObserver(context) }
+    val status by connectivityObserver.observe().collectAsState(
+        initial = if (isNetworkAvailable(context)) NetworkObserver.Status.Available
+        else NetworkObserver.Status.Unavailable
+    )
+
 
     NavHost(
         navController = innerNavController,
         startDestination = "login"
     ) {
         composable("login") {
-            Login(viewModel, rootNavController, innerNavController)
+            if (status == NetworkObserver.Status.Available) {
+                Login(viewModel, rootNavController, innerNavController)
+            } else {
+                LoginNoConnection()
+            }
         }
         composable("register") {
-            Register(viewModel, rootNavController, innerNavController)
+            if (status == NetworkObserver.Status.Available) {
+                Register(viewModel, rootNavController, innerNavController)
+            } else {
+                RegisterNoConnection()
+            }
         }
     }
 }
@@ -69,8 +94,7 @@ fun Login(viewModel: UserViewModel, rootNavController: NavHostController, innerN
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var showInvalid by remember { mutableStateOf(false) }
-
-    val userData by viewModel.userData.collectAsState()
+    val scope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -155,7 +179,7 @@ fun Login(viewModel: UserViewModel, rootNavController: NavHostController, innerN
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.Bold,
-                        color = Color.Red,          //TODO look after better color for contrast dark/light
+                        color = MaterialTheme.colorScheme.error,
                         fontSize = 16.sp
                     )
                 )
@@ -165,12 +189,15 @@ fun Login(viewModel: UserViewModel, rootNavController: NavHostController, innerN
 
             Button(
                 onClick = {
-                    if (checkCredentials(email, password, userData)) {
-                        rootNavController.navigate(Screen.Home.route) {
-                            popUpTo("auth") { inclusive = true }
+                    scope.launch {
+                        val isSuccess = viewModel.checkCredentials(email.lowercase(), password)
+                        if (isSuccess) {
+                            rootNavController.navigate(Screen.Home.route) {
+                                popUpTo("auth") { inclusive = true }
+                            }
+                        } else {
+                            showInvalid = true
                         }
-                    }else{
-                        showInvalid = true
                     }
                 },
                 modifier = Modifier
@@ -201,6 +228,8 @@ fun Register(viewModel: UserViewModel, rootNavController: NavHostController, inn
     var showDatePicker by remember { mutableStateOf(false) }
     var dateError by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
+    val scope = rememberCoroutineScope()
+    var showInvalid by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -299,11 +328,11 @@ fun Register(viewModel: UserViewModel, rootNavController: NavHostController, inn
                     modifier = Modifier
                         .fillMaxWidth(),
                     text = stringResource(id = R.string.invalid_dob),
-                    color = Color.Red,              //TODO look after better color for contrast dark/light
+                    color = MaterialTheme.colorScheme.error,
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.Bold,
-                        color = Color.Red,
+                        color = MaterialTheme.colorScheme.error,
                         fontSize = 16.sp
                     )
                 )
@@ -335,6 +364,22 @@ fun Register(viewModel: UserViewModel, rootNavController: NavHostController, inn
                 }
             }
 
+            if (showInvalid) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    text = stringResource(id = R.string.existing_user),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.error,
+                        fontSize = 16.sp
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
             Button(
                 onClick = {
                     val selectedDateMillis = datePickerState.selectedDateMillis
@@ -343,13 +388,19 @@ fun Register(viewModel: UserViewModel, rootNavController: NavHostController, inn
                         val userData = UserEntity(
                             id = "",
                             name = name.split(" ").joinToString(" ") { it.replaceFirstChar { char -> char.uppercase() } },
-                            email = email,
+                            email = email.lowercase(),
                             password = password,
                             dob = selectedDateMillis
                         )
-                        viewModel.insertUserData(userData)
-                        viewModel.syncUserFromCloud(userData.id.toString()) //Test Funzionamento
-                        rootNavController.navigate(Screen.Home.route)
+                        scope.launch {
+                            val isSuccess = viewModel.registerUser(userData)
+                            if (!isSuccess) {
+
+                                rootNavController.navigate(Screen.Home.route)
+                            }else {
+                                showInvalid = true
+                            }
+                        }
                     } else {
                         dateError = true
                     }
@@ -364,7 +415,8 @@ fun Register(viewModel: UserViewModel, rootNavController: NavHostController, inn
             }
 
             TextButton(
-                onClick = { innerNavController.navigate("login") },
+                onClick = {
+                    innerNavController.navigate("login") },
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
                 Text(stringResource(id = R.string.already_account   ))
@@ -380,12 +432,8 @@ fun validateAge(birthDateMillis: Long): Boolean {
             .toLocalDate()
         val now = LocalDate.now()
         val age = Period.between(birthDate, now).years
-        age >= 16
+        age in 16..100
     } catch (e: Exception) {
         false
     }
-}
-
-fun checkCredentials(email: String, password: String, userData: UserEntity?): Boolean {
-    return email == userData?.email && password == userData.password
 }

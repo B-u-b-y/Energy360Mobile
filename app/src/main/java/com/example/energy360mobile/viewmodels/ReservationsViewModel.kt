@@ -7,9 +7,11 @@ import com.example.energy360mobile.databases.reservations.ReservationsDatabase
 import com.example.energy360mobile.databases.reservations.ReservationsEntity
 import com.example.energy360mobile.databases.reservations.ReservationsRepository
 import com.example.energy360mobile.databases.reservations.ReservationsFirebaseDataSource
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ReservationsViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: ReservationsRepository
@@ -37,8 +39,8 @@ class ReservationsViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    fun insertReservation(reservation: ReservationsEntity) {
-        viewModelScope.launch {
+    suspend fun insertReservation(reservation: ReservationsEntity) {
+        return withContext(Dispatchers.IO){
             repository.insertReservations(reservation)
         }
     }
