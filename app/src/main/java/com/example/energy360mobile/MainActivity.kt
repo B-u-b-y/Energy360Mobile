@@ -145,21 +145,5 @@ fun MainApp(stepsViewModel : StepsViewModel) {
             stepsViewModel = stepsViewModel,
             reservationsViewModel = reservationsViewModel
         )
-            startDestination = startingDestination,
-            modifier = Modifier.padding(if (currentRoute in mainScreens) innerPadding else PaddingValues(0.dp))
-        ) {
-            composable("auth") { Execution(userViewModel, navController) }
-            composable(Screen.Home.route) { HomeScreen(navController, stepsViewModel) }
-            composable(Screen.Messages.route) { MessagesScreen(navController) }
-            composable(Screen.Search.route) { SearchScreen() }
-            composable(Screen.Reservation.route) { ReservationScreen(reservationsViewModel) }
-            composable(Screen.Profile.route) { ProfileScreen(navController) }
-            composable("training_page") { TrainingSession(exercisesViewModel) }
-            composable("chat_detail/{senderName}") { backStackEntry ->
-                val senderName = backStackEntry.arguments?.getString("senderName") ?: ""
-                ChatDetailScreen(senderName = senderName, onBack = { navController.popBackStack() })
-            }
-            composable("services") {ServicesPage(onBack = { navController.popBackStack() })}
-        }
     }
 }
