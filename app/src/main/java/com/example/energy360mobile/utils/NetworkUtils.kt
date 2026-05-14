@@ -10,21 +10,40 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
+/**
+ * Interface defining a mechanism to observe changes in the network connectivity status.
+ */
 interface NetworkObserver {
+    /**
+     * Starts observing network changes and returns a [Flow] of [Status].
+     */
     fun observe(): Flow<Status>
 
+    /**
+     * Represents the possible states of network connectivity.
+     */
     enum class Status {
         Available, Unavailable, Losing, Lost
     }
 }
 
-class ConnectivityObserver(
-    context: Context
-): NetworkObserver {
+/**
+ * Implementation of [NetworkObserver] using the Android [ConnectivityManager].
+ * It provides a reactive way to monitor network state changes.
+ *
+ * @param context The application context required to access system services.
+ */
+class ConnectivityObserver(context: Context): NetworkObserver {
 
     private val connectivityManager =
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
+    /**
+     * Observes the default network's connectivity status.
+     * Uses [callbackFlow] to wrap the [ConnectivityManager.NetworkCallback] and emit status updates.
+     *
+     * @return A [Flow] emitting the current [NetworkObserver.Status].
+     */
     override fun observe(): Flow<NetworkObserver.Status> {
         return callbackFlow {
             val callback = object : ConnectivityManager.NetworkCallback() {
@@ -58,7 +77,11 @@ class ConnectivityObserver(
 }
 
 /**
- * Funzione di utilità per un controllo istantaneo della connessione.
+ * Utility function for an instantaneous check of the network connection.
+ * It checks if the device is currently connected to Wi-Fi, Cellular, or Ethernet.
+ *
+ * @param context The context used to retrieve the ConnectivityManager.
+ * @return True if a network transport is available, false otherwise.
  */
 fun isNetworkAvailable(context: Context): Boolean {
     val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
