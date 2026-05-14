@@ -34,6 +34,14 @@ import com.example.energy360mobile.R
 import com.example.energy360mobile.viewmodels.ReservationsViewModel
 import com.example.energy360mobile.viewmodels.StepsViewModel
 
+/**
+ * Represents the different screens available in the bottom navigation bar.
+ *
+ * @property route The navigation route string.
+ * @property labelId The resource ID for the string label.
+ * @property selectedIcon The icon to display when the screen is selected.
+ * @property unselectedIcon The icon to display when the screen is not selected.
+ */
 sealed class Screen(val route: String, val labelId: Int, val selectedIcon: ImageVector, val unselectedIcon: ImageVector) {
     object Home : Screen("dashboard/home", R.string.home_label, Icons.Default.Home, Icons.Outlined.Home)
     object Search : Screen("search", R.string.search_label, Icons.Default.Search, Icons.Outlined.Search)
@@ -41,8 +49,15 @@ sealed class Screen(val route: String, val labelId: Int, val selectedIcon: Image
     object Profile : Screen("profile/home", R.string.profile_label, Icons.Default.Person, Icons.Outlined.Person)
     object Messages : Screen("message_page", R.string.message, Icons.Default.Email, Icons.Outlined.Email)}
 
+/**
+ * A custom bottom navigation bar that manages navigation between the main application screens.
+ * Features animated icons and badges.
+ *
+ * @param navController The NavHostController used to handle navigation.
+ */
 @Composable
 fun BottomBar(navController: NavHostController) {
+    // List of screens to be displayed in the bottom bar
     val items = listOf(
         Screen.Home,
         Screen.Search,
@@ -58,12 +73,15 @@ fun BottomBar(navController: NavHostController) {
         containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
         tonalElevation = 8.dp
     ) {
+        // Observe the current back stack entry to determine the active destination
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
 
         items.forEach { screen ->
+            // Check if the current destination or any of its parents match the screen's route
             val isSelected = currentDestination?.hierarchy?.any { it.route == screen.route } == true
             
+            // Animate the icon color based on selection state
             val iconColor by animateColorAsState(
                 targetValue = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                 animationSpec = spring(stiffness = Spring.StiffnessLow),
@@ -71,6 +89,7 @@ fun BottomBar(navController: NavHostController) {
             )
             NavigationBarItem(
                 icon = {
+                    // Display a badge for the Messages screen (hardcoded for now)
                     BadgedBox(
                         badge = {
                             if (screen == Screen.Messages) {
@@ -98,25 +117,31 @@ fun BottomBar(navController: NavHostController) {
                 },
                 selected = isSelected,
                 onClick = {
-                    if (screen.route == Screen.Home.route) {
-                        navController.navigate(Screen.Home.route) {
-                            popUpTo(Screen.Home.route) { inclusive = true }
-                            launchSingleTop = true
-                            restoreState = false
-                        }
-                    }else if (screen.route == Screen.Profile.route) {
-                        navController.navigate(Screen.Profile.route) {
-                            popUpTo(Screen.Profile.route) { inclusive = true }
-                            launchSingleTop = true
-                            restoreState = false
-                        }
-                    }else {
-                        navController.navigate(screen.route) {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
+                    // Specialized navigation logic for Home and Profile to handle stack reset
+                    when (screen.route) {
+                        Screen.Home.route -> {
+                            navController.navigate(Screen.Home.route) {
+                                popUpTo(Screen.Home.route) { inclusive = true }
+                                launchSingleTop = true
+                                restoreState = false
                             }
-                            launchSingleTop = true
-                            restoreState = true
+                        }
+                        Screen.Profile.route -> {
+                            navController.navigate(Screen.Profile.route) {
+                                popUpTo(Screen.Profile.route) { inclusive = true }
+                                launchSingleTop = true
+                                restoreState = false
+                            }
+                        }
+                        else -> {
+                            // Standard navigation for other screens
+                            navController.navigate(screen.route) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
                         }
                     }
                 },
@@ -129,26 +154,50 @@ fun BottomBar(navController: NavHostController) {
     }
 }
 
+/**
+ * Wrapper for the Home Screen.
+ *
+ * @param rootNavController The main navigation controller.
+ * @param stepsViewModel ViewModel managing step counting data.
+ */
 @Composable
 fun HomeScreen(rootNavController: NavHostController, stepsViewModel: StepsViewModel) {
     HomePage(rootNavController, stepsViewModel)
 }
 
+/**
+ * Wrapper for the Profile Screen.
+ *
+ * @param rootNavController The main navigation controller.
+ */
 @Composable
 fun ProfileScreen(rootNavController: NavHostController) {
     UserProfile(rootNavController)
 }
 
+/**
+ * Wrapper for the Messages/Chat Screen.
+ *
+ * @param rootNavController The main navigation controller.
+ */
 @Composable
 fun MessagesScreen(rootNavController: NavHostController) {
     MessagePage(rootNavController)
 }
 
+/**
+ * Wrapper for the Search Screen.
+ */
 @Composable
 fun SearchScreen() {
     SearchPage()
 }
 
+/**
+ * Wrapper for the Reservation Screen.
+ *
+ * @param viewModel ViewModel managing reservations data.
+ */
 @Composable
 fun ReservationScreen(viewModel: ReservationsViewModel) {
     Reservations(viewModel)
