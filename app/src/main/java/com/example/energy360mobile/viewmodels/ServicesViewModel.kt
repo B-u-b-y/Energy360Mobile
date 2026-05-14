@@ -10,12 +10,23 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+/**
+ * ViewModel for managing fitness services and courses.
+ * It acts as an intermediary between the [ServicesRepository] and the UI,
+ * providing a reactive list of all available services.
+ *
+ * @param application The application context.
+ */
 class ServicesViewModel (application: Application) : AndroidViewModel(application){
 
     private val repository: ServicesRepository
 
+    // Internal mutable state flow to hold the list of services
     private val servicesFlow = MutableStateFlow<List<ServicesEntity>>(emptyList())
 
+    /**
+     * A StateFlow emitting the list of all services available in the database.
+     */
     val services: StateFlow<List<ServicesEntity>>
         get() = servicesFlow
 
@@ -24,6 +35,7 @@ class ServicesViewModel (application: Application) : AndroidViewModel(applicatio
         val dao = database.servicesDao()
         repository = ServicesRepository(dao)
 
+        // Observe the database flow and update the state flow
         viewModelScope.launch {
             repository.allServices
                 .collect { servicesFlow.value = it }
