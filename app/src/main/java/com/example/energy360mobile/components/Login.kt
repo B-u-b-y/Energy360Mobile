@@ -1,6 +1,5 @@
 package com.example.energy360mobile.components
 
-import androidx.activity.result.launch
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -47,7 +46,6 @@ import com.example.energy360mobile.viewmodels.UserViewModel
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.rememberDatePickerState
-import androidx.lifecycle.observe
 import com.example.energy360mobile.utils.ConnectivityObserver
 import com.example.energy360mobile.utils.NetworkObserver
 import kotlinx.coroutines.launch
@@ -55,6 +53,14 @@ import java.util.Date
 import java.text.SimpleDateFormat
 import java.util.Locale
 
+/**
+ * Entry point for the Authentication flow.
+ * Manages the navigation between Login and Register screens and monitors network connectivity
+ * to display "No Connection" screens when necessary.
+ *
+ * @param viewModel The UserViewModel used for authentication logic.
+ * @param rootNavController The main NavController of the application.
+ */
 @Composable
 fun Execution(viewModel: UserViewModel, rootNavController: NavHostController) {
     val innerNavController = rememberNavController()
@@ -88,6 +94,14 @@ fun Execution(viewModel: UserViewModel, rootNavController: NavHostController) {
     }
 }
 
+/**
+ * Displays the Login screen.
+ * Allows users to input their email and password to access the application.
+ *
+ * @param viewModel The UserViewModel used to check credentials.
+ * @param rootNavController The main NavController for navigating to the Home screen upon success.
+ * @param innerNavController The local NavController for switching to the Register screen.
+ */
 @Composable
 fun Login(viewModel: UserViewModel, rootNavController: NavHostController, innerNavController: NavHostController) {
     var email by remember { mutableStateOf("") }
@@ -102,6 +116,7 @@ fun Login(viewModel: UserViewModel, rootNavController: NavHostController, innerN
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Header with branding and welcome message
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -136,6 +151,7 @@ fun Login(viewModel: UserViewModel, rootNavController: NavHostController, innerN
 
         Spacer(modifier = Modifier.height(40.dp))
 
+        // Input fields and Login action
         Column(
             modifier = Modifier
                 .padding(horizontal = 32.dp)
@@ -171,6 +187,7 @@ fun Login(viewModel: UserViewModel, rootNavController: NavHostController, innerN
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Error message for invalid credentials
             if (showInvalid) {
                 Text(
                     modifier = Modifier
@@ -192,6 +209,7 @@ fun Login(viewModel: UserViewModel, rootNavController: NavHostController, innerN
                     scope.launch {
                         val isSuccess = viewModel.checkCredentials(email.lowercase(), password)
                         if (isSuccess) {
+                            // On success, navigate to Home and clear auth stack
                             rootNavController.navigate(Screen.Home.route) {
                                 popUpTo("auth") { inclusive = true }
                             }
@@ -218,6 +236,14 @@ fun Login(viewModel: UserViewModel, rootNavController: NavHostController, innerN
     }
 }
 
+/**
+ * Displays the Register screen.
+ * Allows new users to create an account by providing their name, email, password, and date of birth.
+ *
+ * @param viewModel The UserViewModel used for user registration.
+ * @param rootNavController The main NavController for navigating to the Home screen upon success.
+ * @param innerNavController The local NavController for switching back to the Login screen.
+ */
 @Composable
 fun Register(viewModel: UserViewModel, rootNavController: NavHostController, innerNavController: NavHostController) {
     var name by remember { mutableStateOf("") }
@@ -237,6 +263,7 @@ fun Register(viewModel: UserViewModel, rootNavController: NavHostController, inn
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Header with "Create Account" title
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -263,6 +290,7 @@ fun Register(viewModel: UserViewModel, rootNavController: NavHostController, inn
 
         Spacer(modifier = Modifier.height(32.dp))
 
+        // Registration form fields
         Column(
             modifier = Modifier
                 .padding(horizontal = 32.dp)
@@ -306,6 +334,7 @@ fun Register(viewModel: UserViewModel, rootNavController: NavHostController, inn
                 singleLine = true
             )
 
+            // Date of Birth selection (read-only field with picker)
             OutlinedTextField(
                 value = dob,
                 onValueChange = { },
@@ -323,6 +352,7 @@ fun Register(viewModel: UserViewModel, rootNavController: NavHostController, inn
                 singleLine = true
             )
 
+            // Date validation error message
             if (dateError) {
                 Text(
                     modifier = Modifier
@@ -338,6 +368,7 @@ fun Register(viewModel: UserViewModel, rootNavController: NavHostController, inn
                 )
             }
 
+            // Material 3 Date Picker Dialog
             if (showDatePicker) {
                 DatePickerDialog(
                     onDismissRequest = { showDatePicker = false },
@@ -364,6 +395,7 @@ fun Register(viewModel: UserViewModel, rootNavController: NavHostController, inn
                 }
             }
 
+            // Error message for existing user or registration failure
             if (showInvalid) {
                 Text(
                     modifier = Modifier
@@ -385,6 +417,7 @@ fun Register(viewModel: UserViewModel, rootNavController: NavHostController, inn
                     val selectedDateMillis = datePickerState.selectedDateMillis
                     if (selectedDateMillis != null && validateAge(selectedDateMillis)) {
                         dateError = false
+                        // Prepare user entity with formatted name
                         val userData = UserEntity(
                             id = "",
                             name = name.split(" ").joinToString(" ") { it.replaceFirstChar { char -> char.uppercase() } },
@@ -395,7 +428,6 @@ fun Register(viewModel: UserViewModel, rootNavController: NavHostController, inn
                         scope.launch {
                             val isSuccess = viewModel.registerUser(userData)
                             if (!isSuccess) {
-
                                 rootNavController.navigate(Screen.Home.route)
                             }else {
                                 showInvalid = true
@@ -425,6 +457,12 @@ fun Register(viewModel: UserViewModel, rootNavController: NavHostController, inn
     }
 }
 
+/**
+ * Validates that the user is between 16 and 100 years old based on their birth date.
+ *
+ * @param birthDateMillis The birth date in milliseconds.
+ * @return True if the age is valid, false otherwise.
+ */
 fun validateAge(birthDateMillis: Long): Boolean {
     return try {
         val birthDate = Instant.ofEpochMilli(birthDateMillis)

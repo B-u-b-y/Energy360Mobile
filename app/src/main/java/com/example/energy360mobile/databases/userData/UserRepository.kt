@@ -1,12 +1,26 @@
 package com.example.energy360mobile.databases.userData
 
-class UserRepository (private val dao: UserDao,private val firebaseDataSource: UserFirebaseDataSource){
+import kotlinx.coroutines.flow.Flow
 
-    val user = dao.getUser()
+/**
+ * Repository class that abstracts access to user data from both local (Room)
+ * and remote (Firebase) data sources.
+ *
+ * @property dao The [UserDao] for local database operations.
+ * @property firebaseDataSource The [UserFirebaseDataSource] for remote database operations.
+ */
+class UserRepository (private val dao: UserDao, private val firebaseDataSource: UserFirebaseDataSource){
 
     /**
-     * Sincronizza l'utente da Firebase a Room.
-     * Chiamerai questa funzione nel ViewModel al login o all'avvio dell'app.
+     * A [Flow] emitting the current user from the local database.
+     */
+    val user: Flow<UserEntity?> = dao.getUser()
+
+    /**
+     * Synchronizes user data from Firebase to the local Room database.
+     * This is typically called in the ViewModel upon login or app startup.
+     *
+     * @param userId The unique ID of the user to sync.
      */
     suspend fun syncUserFromCloud(userId: String) {
         try {
@@ -15,23 +29,34 @@ class UserRepository (private val dao: UserDao,private val firebaseDataSource: U
                 dao.insert(remoteUser)
             }
         } catch (e: Exception) {
-            // L'app continuerà a usare la cache di Room senza bloccare l'utente
+            // App continues using Room cache without blocking the user
         }
     }
 
     /**
-     * Inserisce/Aggiorna l'utente salvandolo contemporaneamente in locale e sul cloud.
+     * Inserts or updates a user, saving them both to the local database and the cloud.
+     *
+     * @param user The [UserEntity] to be saved.
      */
     suspend fun insertUser(user: UserEntity) {
-        val userFirebaseRef = firebaseDataSource.saveUser(user) // Backup in background su Firebase
+        val userFirebaseRef = firebaseDataSource.saveUser(user) // Cloud backup
         user.id = userFirebaseRef?.id.toString()
         dao.insert(user)
     }
 
+    /**
+     * Removes the user data from the local database.
+     */
     suspend fun removeUser(){
         dao.clearAll()
     }
 
+    /**
+     * Checks if a user with the given email already exists in Firebase.
+     *
+     * @param userData The user data containing the email to check.
+     * @return True if the email exists, false otherwise.
+     */
     fun checkIfEmailExists(userData: UserEntity): Boolean{
         try{
             return firebaseDataSource.insertUserData(userData)
@@ -41,11 +66,17 @@ class UserRepository (private val dao: UserDao,private val firebaseDataSource: U
         return false
     }
 
+    /**
+     * Fetches user data from Firebase using their email.
+     *
+     * @param email The user's email address.
+     * @return The [UserEntity] if found, otherwise null.
+     */
     fun fetchUserData(email: String): UserEntity? {
         try {
             return firebaseDataSource.fetchUserData(email)
         } catch (e: Exception) {
-            // L'app continuerà a usare la cache di Room senza bloccare l'utente
+            // App continues using Room cache
         }
         return null
     }

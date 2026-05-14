@@ -10,11 +10,21 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
+/**
+ * The Room database for storing user reservations.
+ * Includes an automatic seeding mechanism to populate the database with default reservations.
+ */
 @Database(entities = [ReservationsEntity::class], version = 1, exportSchema = true)
 abstract class ReservationsDatabase : RoomDatabase() {
 
+    /**
+     * Provides access to the [ReservationsDao].
+     */
     abstract fun reservationsDao(): ReservationsDao
 
+    /**
+     * Internal callback to seed the database with initial values when it is first created.
+     */
     private class ReservationsDatabaseCallback(
         private val scope: CoroutineScope
     ) : Callback() {
@@ -29,6 +39,11 @@ abstract class ReservationsDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * Inserts a default list of reservations into the database.
+         *
+         * @param dao The [ReservationsDao] to use for insertions.
+         */
         suspend fun seedDatabase(dao: ReservationsDao) {
             val calendar = Calendar.getInstance()
             
@@ -84,6 +99,12 @@ abstract class ReservationsDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: ReservationsDatabase? = null
 
+        /**
+         * Returns the singleton instance of [ReservationsDatabase].
+         *
+         * @param context The application context.
+         * @return The [ReservationsDatabase] instance.
+         */
         fun getDatabase(context: Context): ReservationsDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(

@@ -26,6 +26,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.energy360mobile.R
 
+/**
+ * Displays a placeholder for the Reservations screen when no network connection is available.
+ * It maintains visual consistency with the standard Reservations screen but shows
+ * a "No Connection" error message instead of the reservation list.
+ */
 @Composable
 fun ReservationsNoConnection() {
     Column(

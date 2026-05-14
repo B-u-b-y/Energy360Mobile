@@ -35,6 +35,15 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+/**
+ * Displays the list of all available fitness services and courses.
+ * Users can view details about each course and make reservations.
+ *
+ * @param viewModel The ServicesViewModel for fetching available services.
+ * @param reservationsViewModel The ReservationsViewModel for managing bookings.
+ * @param userViewModel The UserViewModel for accessing user session data.
+ * @param onBack Callback triggered when the back navigation button is pressed.
+ */
 @Composable
 fun ServicesPage(viewModel: ServicesViewModel = viewModel(), reservationsViewModel: ReservationsViewModel = viewModel(), userViewModel: UserViewModel = viewModel(), onBack: () -> Unit) {
     val services by viewModel.services.collectAsState()
@@ -42,6 +51,7 @@ fun ServicesPage(viewModel: ServicesViewModel = viewModel(), reservationsViewMod
     val userData by userViewModel.userData.collectAsState()
     val scope = rememberCoroutineScope()
 
+    // Filter out past services to show only future opportunities
     val currentTime = System.currentTimeMillis()
     val futureServices = services.filter { it.date > currentTime }
 
@@ -49,7 +59,7 @@ fun ServicesPage(viewModel: ServicesViewModel = viewModel(), reservationsViewMod
         modifier = Modifier
             .fillMaxSize()
     ) {
-        // Top rounded box
+        // Header section with back button and page title
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -157,6 +167,15 @@ fun ServicesPage(viewModel: ServicesViewModel = viewModel(), reservationsViewMod
     }
 }
 
+/**
+ * A detailed card representing a single fitness service.
+ * Shows name, category, description, duration, and location.
+ * Provides an interface for reserving the course if it's not already booked.
+ *
+ * @param service The ServicesEntity containing the course details.
+ * @param isAlreadyReserved Boolean flag indicating if the current user has already booked this course.
+ * @param onReserve Callback function to perform the reservation action.
+ */
 @Composable
 fun ServiceCard(service: ServicesEntity, isAlreadyReserved: Boolean, onReserve: () -> Unit) {
     var openReserveButton by remember { mutableStateOf(false) }

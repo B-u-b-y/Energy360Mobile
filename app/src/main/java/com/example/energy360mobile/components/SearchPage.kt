@@ -33,6 +33,11 @@ import java.util.Date
 import java.util.Locale
 
 
+/**
+ * The main entry point for the Search section.
+ * It manages connectivity status and toggles between the search interface
+ * and a "No Connection" error screen.
+ */
 @Composable
 fun SearchPage(){
     val context = LocalContext.current
@@ -47,6 +52,15 @@ fun SearchPage(){
     else
         SearchPageNoConnection()
 }
+/**
+ * Displays the interactive Search interface when a network connection is available.
+ * Includes a search bar, category suggestions, and a list of available services
+ * that users can filter and reserve.
+ *
+ * @param viewModel The ServicesViewModel for fetching available activities.
+ * @param reservationsViewModel The ReservationsViewModel for managing user bookings.
+ * @param userViewModel The UserViewModel for accessing current user info.
+ */
 @Composable
 fun SearchPageWithConnection(viewModel: ServicesViewModel = viewModel(), reservationsViewModel: ReservationsViewModel = viewModel(), userViewModel: UserViewModel = viewModel()) {
     var searchQuery by remember { mutableStateOf("") }
@@ -56,6 +70,7 @@ fun SearchPageWithConnection(viewModel: ServicesViewModel = viewModel(), reserva
     val currentReservations by reservationsViewModel.reservations.collectAsState()
     val userData by userViewModel.userData.collectAsState()
 
+    // Filter logic: show only future services and apply text search query
     val filteredResults = remember(searchQuery, allServices) {
         val currentTime = System.currentTimeMillis()
         val futureServices = allServices.filter { it.date > currentTime }
@@ -76,7 +91,7 @@ fun SearchPageWithConnection(viewModel: ServicesViewModel = viewModel(), reserva
         modifier = Modifier
             .fillMaxSize()
     ) {
-        //top-box (big-one)
+        // Header section with branding and welcome message
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -103,6 +118,7 @@ fun SearchPageWithConnection(viewModel: ServicesViewModel = viewModel(), reserva
             }
         }
 
+        // Search Bar area
         Column(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
@@ -140,6 +156,7 @@ fun SearchPageWithConnection(viewModel: ServicesViewModel = viewModel(), reserva
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
         
+        // Fast category chips for quick filtering
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -158,6 +175,7 @@ fun SearchPageWithConnection(viewModel: ServicesViewModel = viewModel(), reserva
             }
         }
 
+        // Results list
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -180,6 +198,7 @@ fun SearchPageWithConnection(viewModel: ServicesViewModel = viewModel(), reserva
                     val sdfDay = SimpleDateFormat("EEEE", Locale.getDefault())
                     val dayString = sdfDay.format(Date(service.date))
                     
+                    // Create and insert a new reservation
                     val reservation = ReservationsEntity(
                         eventName = service.name,
                         day = dayString,
@@ -198,6 +217,15 @@ fun SearchPageWithConnection(viewModel: ServicesViewModel = viewModel(), reserva
     }
 }
 
+/**
+ * A card representing an individual service or activity found during search.
+ * It displays details such as category, place, date, and duration.
+ * Users can tap to reveal a reservation button or see if they are already booked.
+ *
+ * @param result The ServicesEntity containing details of the activity.
+ * @param isAlreadyReserved Boolean indicating if the user has already booked this event.
+ * @param onReserve Callback to handle the reservation action.
+ */
 @Composable
 fun SearchItemCard(result: ServicesEntity, isAlreadyReserved: Boolean, onReserve: () -> Unit) {
     var openReserveButton by remember { mutableStateOf(false) }
@@ -273,6 +301,12 @@ fun SearchItemCard(result: ServicesEntity, isAlreadyReserved: Boolean, onReserve
     }
 }
 
+/**
+ * Converts a timestamp in milliseconds to a human-readable date and time string.
+ *
+ * @param dateMillis The date in milliseconds.
+ * @return A formatted string (dd/MM/yyyy - HH:mm) or "---" if parsing fails.
+ */
 fun convertLongToDate(dateMillis: Long): String {
     return try {
         val sdf = SimpleDateFormat("dd/MM/yyyy - HH:mm", Locale.getDefault())

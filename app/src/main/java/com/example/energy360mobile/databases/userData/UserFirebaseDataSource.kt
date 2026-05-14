@@ -7,19 +7,25 @@ import kotlinx.coroutines.tasks.await
 import com.google.android.gms.tasks.Tasks
 import java.util.concurrent.TimeUnit
 
+/**
+ * Data source class responsible for interacting with Google Firebase Firestore
+ * to manage user-related data in the cloud.
+ */
 class UserFirebaseDataSource {
 
     private val db = FirebaseFirestore.getInstance()
     private val collectionName = "users"
 
     /**
-     * Scarica i dati dell'utente dal Cloud usando il suo ID univoco.
-     * Ritorna UserEntity se lo trova, altrimenti null (es. utente nuovo o offline).
+     * Fetches user data from Firestore using their unique ID.
+     *
+     * @param userId The unique identifier of the user.
+     * @return A [UserEntity] if found, otherwise null (e.g., user doesn't exist or device is offline).
      */
     suspend fun fetchUser(userId: String): UserEntity? {
         return try {
             val snapshot = db.collection(collectionName).document(userId).get().await()
-            // Converte il documento Firestore nell'oggetto UserEntity
+            // Converts the Firestore document to a UserEntity object
             snapshot.toObject(UserEntity::class.java)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -27,8 +33,13 @@ class UserFirebaseDataSource {
         }
     }
 
+    /**
+     * Checks if a user with the same email already exists in Firestore.
+     *
+     * @param user The user data containing the email to verify.
+     * @return True if a user with that email exists, false otherwise.
+     */
     fun insertUserData(user: UserEntity): Boolean {
-
         return try {
             val task = db.collection(collectionName)
                 .whereEqualTo("email", user.email)
@@ -36,16 +47,22 @@ class UserFirebaseDataSource {
 
             val snapshot = Tasks.await(task, 5, TimeUnit.SECONDS)
             if (!snapshot.isEmpty) {
-                val user = snapshot.documents.first().data
-                user != null
+                val foundUser = snapshot.documents.first().data
+                foundUser != null
             } else {
                 false
             }
-        }catch (e: Exception){false}
+        } catch (e: Exception) {
+            false
+        }
     }
 
     /**
-     * Salva o aggiorna i dati dell'utente sul Cloud.
+     * Saves or updates the user data in Firestore.
+     * It checks if the email already exists before adding a new document.
+     *
+     * @param user The [UserEntity] to be saved.
+     * @return A [DocumentReference] to the saved user document, or null if an error occurred.
      */
     suspend fun saveUser(user: UserEntity): DocumentReference? {
         return try {
@@ -64,19 +81,19 @@ class UserFirebaseDataSource {
                 .add(user)
                 .await()
 
-            Log.d("saveUser", "Utente '${user.email}' salvato con ID: ${documentRef.id}")
             documentRef
 
         } catch (e: Exception) {
             e.printStackTrace()
-            Log.e("saveUser", "Errore durante il salvataggio dell'utente: ${e.message}")
             null
         }
     }
 
     /**
-     * Scarica i dati dell'utente dal Cloud usando la mail.
-     * Ritorna UserEntity se lo trova, altrimenti null (es. utente nuovo o offline).
+     * Fetches user data from Firestore using their email address.
+     *
+     * @param email The user's email address.
+     * @return A [UserEntity] if found, otherwise null.
      */
     fun fetchUserData(email: String): UserEntity? {
         return try {
@@ -86,10 +103,9 @@ class UserFirebaseDataSource {
 
             val snapshot = Tasks.await(task, 5, TimeUnit.SECONDS)
             if (!snapshot.isEmpty) {
-
                 val user = snapshot.documents.first().data
                 val users = UserEntity(
-                    "",
+                    id = "",
                     name = user?.get("name").toString(),
                     password = user?.get("password").toString(),
                     email = user?.get("email").toString(),

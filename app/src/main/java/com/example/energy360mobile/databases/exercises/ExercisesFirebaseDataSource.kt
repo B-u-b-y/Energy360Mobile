@@ -1,42 +1,42 @@
 package com.example.energy360mobile.databases.exercises
 
 import android.util.Log
-import com.example.energy360mobile.databases.exercises.ExercisesEntity
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
+/**
+ * Data source class for interacting with Firebase Firestore to manage exercise information in the cloud.
+ */
 class ExercisesFirebaseDataSource {
 
-    // Inizializza l'istanza del database Firestore
     private val db = FirebaseFirestore.getInstance()
-
-    // Il nome della "tabella" (collezione) su Firebase
     private val collectionName = "exercises"
 
     /**
-     * Scarica tutti gli esercizi dal Cloud.
-     * Usiamo 'suspend' perché è un'operazione di rete che richiede tempo.
+     * Fetches all available exercises from the cloud repository.
+     * This is a network operation and is performed asynchronously.
+     *
+     * @return A list of [ExercisesEntity] objects, or an empty list if a network error occurs.
      */
     suspend fun fetchAllExercises(): List<ExercisesEntity> {
         return try {
-            // Chiamata di rete: prende tutti i documenti e attende il risultato con await()
             val snapshot = db.collection(collectionName).get().await()
-            Log.d("dio",snapshot.toString())
+            Log.d("ExercisesFirebase", snapshot.toString())
             snapshot.toObjects(ExercisesEntity::class.java)
         } catch (e: Exception) {
             e.printStackTrace()
-
-            emptyList() // Se salta la connessione, ritorniamo una lista vuota
+            emptyList()
         }
     }
 
     /**
-     * Salva o aggiorna un esercizio sul Cloud.
+     * Saves or updates an exercise record in the cloud database.
+     * It uses the exercise's ID as the document ID in Firestore.
+     *
+     * @param exercise The [ExercisesEntity] to be saved or updated.
      */
     suspend fun saveExercise(exercise: ExercisesEntity) {
         try {
-            // Usiamo l'ID del tuo esercizio come ID del documento su Firebase.
-            // Se esiste già lo sovrascrive (aggiorna), altrimenti lo crea.
             db.collection(collectionName)
                 .document(exercise.id.toString())
                 .set(exercise)

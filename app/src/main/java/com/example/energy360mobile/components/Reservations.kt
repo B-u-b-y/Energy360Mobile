@@ -49,12 +49,20 @@ import com.example.energy360mobile.utils.isNetworkAvailable
 import com.example.energy360mobile.viewmodels.ReservationsViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
-import java.util.Locale
+import androidx.compose.ui.platform.LocalLocale
 
+/**
+ * The entry point for the Reservations screen.
+ * It manages connectivity status and chooses whether to show the reservations list
+ * or a "No Connection" screen.
+ *
+ * @param viewModel The ReservationsViewModel managing the user's bookings.
+ */
 @Composable
 fun Reservations(viewModel: ReservationsViewModel){
     val context = LocalContext.current
 
+    // Observe network connectivity to handle offline state
     val connectivityObserver = remember { ConnectivityObserver(context) }
     val status by connectivityObserver.observe().collectAsState(
         initial = if (isNetworkAvailable(context)) NetworkObserver.Status.Available
@@ -67,6 +75,12 @@ fun Reservations(viewModel: ReservationsViewModel){
         ReservationsNoConnection()
 }
 
+/**
+ * Displays the list of upcoming reservations when a network connection is available.
+ * Shows a header and a list of booked events or a hint if no reservations exist.
+ *
+ * @param viewModel The ViewModel providing the reservation data.
+ */
 @Composable
 fun ReservationsWithConnection(viewModel: ReservationsViewModel) {
     val reservations by viewModel.reservations.collectAsState()
@@ -74,16 +88,16 @@ fun ReservationsWithConnection(viewModel: ReservationsViewModel) {
     val upcomingReservations = reservedEvents.filter { !it.isPast }
 
     Column(
-        modifier = Modifier.Companion
+        modifier = Modifier
             .fillMaxSize()
     ) {
-        //top rounded box (big-one)
+        // Header section with gradient background
         Box(
-            modifier = Modifier.Companion
+            modifier = Modifier
                 .fillMaxWidth()
                 .height(180.dp)
                 .background(
-                    brush = Brush.Companion.verticalGradient(
+                    brush = Brush.verticalGradient(
                         colors = listOf(
                             MaterialTheme.colorScheme.primary,
                             MaterialTheme.colorScheme.primaryContainer
@@ -93,7 +107,7 @@ fun ReservationsWithConnection(viewModel: ReservationsViewModel) {
                 )
                 .padding(24.dp)
         ) {
-            Column(modifier = Modifier.Companion.align(Alignment.Companion.CenterStart)) {
+            Column(modifier = Modifier.align(Alignment.CenterStart)) {
                 Text(
                     text = stringResource(id = R.string.recap_reservation),
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
@@ -103,16 +117,16 @@ fun ReservationsWithConnection(viewModel: ReservationsViewModel) {
                     text = stringResource(id = R.string.reservation_title),
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
                     style = MaterialTheme.typography.headlineLarge.copy(
-                        fontWeight = FontWeight.Companion.Bold,
+                        fontWeight = FontWeight.Bold,
                         fontSize = 32.sp
                     )
                 )
             }
         }
 
-        //column with activities/hint message for reservations
+        // Main content: list of reservations or empty state message
         Column(
-            modifier = Modifier.Companion
+            modifier = Modifier
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -123,27 +137,28 @@ fun ReservationsWithConnection(viewModel: ReservationsViewModel) {
                 ),
                 style = MaterialTheme.typography.titleLarge,
                 color = if (reservedEvents.isEmpty()) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.Companion.padding(bottom = 8.dp)
+                modifier = Modifier.padding(bottom = 8.dp)
             )
 
             if (reservedEvents.isEmpty()) {
+                // Hint card shown when there are no reservations
                 Card(
-                    modifier = Modifier.Companion.fillMaxWidth().padding(top = 16.dp),
+                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
                     )
                 ) {
                     Column(
-                        modifier = Modifier.Companion.padding(24.dp).fillMaxWidth(),
-                        horizontalAlignment = Alignment.Companion.CenterHorizontally
+                        modifier = Modifier.padding(24.dp).fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Icon(
                             Icons.Default.EventBusy,
                             contentDescription = null,
-                            modifier = Modifier.Companion.size(48.dp),
+                            modifier = Modifier.size(48.dp),
                             tint = MaterialTheme.colorScheme.outline
                         )
-                        Spacer(modifier = Modifier.Companion.height(8.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             stringResource(id = R.string.reservation_hint),
                             style = MaterialTheme.typography.bodyMedium
@@ -151,41 +166,49 @@ fun ReservationsWithConnection(viewModel: ReservationsViewModel) {
                     }
                 }
             } else {
+                // List of upcoming booked events
                 upcomingReservations.forEach { event ->
                     ReservedEventCard(event, onDelete = { viewModel.deleteReservation(it) })
                 }
             }
         }
-        Spacer(modifier = Modifier.Companion.height(24.dp))
+        Spacer(modifier = Modifier.height(24.dp))
     }
 }
 
+/**
+ * A card representing a single reserved event.
+ * Displays event name, date, time, and location, with an option to cancel.
+ *
+ * @param event The reservation entity to display.
+ * @param onDelete Callback triggered when the delete/cancel button is clicked.
+ */
 @Composable
 fun ReservedEventCard(event: ReservationsEntity, onDelete: (ReservationsEntity) -> Unit) {
-    val sdf = SimpleDateFormat("dd MMMM - HH:mm", Locale.getDefault())
+    val sdf = SimpleDateFormat("dd MMMM - HH:mm", LocalLocale.current.platformLocale)
     val formattedDate = sdf.format(Date(event.date))
 
     Card(
-        modifier = Modifier.Companion.fillMaxWidth(),
-        shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer.copy(0.2f)
         )
     ) {
         Row(
-            modifier = Modifier.Companion.padding(16.dp),
-            verticalAlignment = Alignment.Companion.CenterVertically
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            //left event container
-            Box(contentAlignment = Alignment.Companion.BottomEnd) {
+            // Icon section with a checkmark badge
+            Box(contentAlignment = Alignment.BottomEnd) {
                 Box(
-                    modifier = Modifier.Companion
+                    modifier = Modifier
                         .size(52.dp)
                         .background(
                             MaterialTheme.colorScheme.primaryContainer,
-                            androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+                            RoundedCornerShape(8.dp)
                         ),
-                    contentAlignment = Alignment.Companion.Center
+                    contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         Icons.Default.Event,
@@ -196,31 +219,31 @@ fun ReservedEventCard(event: ReservationsEntity, onDelete: (ReservationsEntity) 
                 Icon(
                     Icons.Default.CheckCircle,
                     contentDescription = null,
-                    modifier = Modifier.Companion
+                    modifier = Modifier
                         .size(20.dp)
                         .offset(x = 4.dp, y = 4.dp)
                         .background(
-                            Color.Companion.White,
-                            androidx.compose.foundation.shape.RoundedCornerShape(10.dp)
+                            Color.White,
+                            RoundedCornerShape(10.dp)
                         ),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
 
-            //text of the container
+            // Event details: Name, date, and place
             Column(
-                modifier = Modifier.Companion
+                modifier = Modifier
                     .padding(horizontal = 16.dp)
                     .weight(1f)
             ) {
                 Text(
                     text = event.eventName,
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Companion.Bold)
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                 )
-                Row(verticalAlignment = Alignment.Companion.CenterVertically) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         Icons.Default.Schedule, contentDescription = null,
-                        modifier = Modifier.Companion
+                        modifier = Modifier
                             .size(14.dp),
                         tint = MaterialTheme.colorScheme.primary
                     )
@@ -232,7 +255,7 @@ fun ReservedEventCard(event: ReservationsEntity, onDelete: (ReservationsEntity) 
                 }
             }
 
-            //delete button
+            // Cancel/Delete reservation button
             IconButton(onClick = { onDelete(event) }) {
                 Icon(
                     Icons.Default.Cancel,

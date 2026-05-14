@@ -20,6 +20,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.energy360mobile.R
 
+/**
+ * Displays a non-interactive placeholder for the Login screen when no network connection is available.
+ * It mimics the layout of the standard Login screen but shows a connectivity error message.
+ */
 @Composable
 fun LoginNoConnection() {
     Column(
@@ -119,6 +123,10 @@ fun LoginNoConnection() {
     }
 }
 
+/**
+ * Displays a non-interactive placeholder for the Register screen when no network connection is available.
+ * It mimics the layout of the standard Register screen but shows a connectivity error message.
+ */
 @Composable
 fun RegisterNoConnection() {
     Column(

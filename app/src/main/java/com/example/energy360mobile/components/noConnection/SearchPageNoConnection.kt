@@ -30,13 +30,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.energy360mobile.R
 
+/**
+ * Displays a placeholder for the Search screen when no network connection is available.
+ * It mimics the visual structure of the SearchPage (header and search bar) to ensure
+ * a consistent UI, but displays a "No Connection" message in the results area.
+ */
 @Composable
 fun SearchPageNoConnection(){
     Column(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        //top-box (big-one)
+        // Header section matching the standard SearchPage
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -63,6 +68,7 @@ fun SearchPageNoConnection(){
             }
         }
 
+        // Disabled Search Bar area
         Column(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
@@ -94,9 +100,10 @@ fun SearchPageNoConnection(){
                 .padding(bottom = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-
+            // Category chips are omitted in the offline state
         }
 
+        // Central offline error indicator
         Box(
             modifier = Modifier
                 .fillMaxSize()

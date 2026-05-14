@@ -9,14 +9,22 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+/**
+ * The Room database for storing services information.
+ * It includes an automatic seeding mechanism to populate the database with initial data upon creation.
+ */
 @Database(entities = [ServicesEntity::class], version = 1, exportSchema = true)
 abstract class ServicesDatabase : RoomDatabase() {
 
+    /**
+     * Provides access to the [ServicesDao].
+     */
     abstract fun servicesDao(): ServicesDao
 
-    private class ServicesDatabaseCallback(
-        private val scope: CoroutineScope
-    ) : Callback() {
+    /**
+     * Internal callback to seed the database with initial values when it is first created.
+     */
+    private class ServicesDatabaseCallback(private val scope: CoroutineScope) : Callback() {
 
         override fun onCreate(db: SupportSQLiteDatabase) {
             super.onCreate(db)
@@ -28,6 +36,11 @@ abstract class ServicesDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * Inserts a default list of fitness services into the database.
+         *
+         * @param dao The [ServicesDao] to use for insertions.
+         */
         suspend fun seedDatabase(dao: ServicesDao) {
             val now = System.currentTimeMillis()
             val dayMillis = 24 * 60 * 60 * 1000L
@@ -152,6 +165,12 @@ abstract class ServicesDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: ServicesDatabase? = null
 
+        /**
+         * Returns the singleton instance of [ServicesDatabase].
+         *
+         * @param context The application context.
+         * @return The [ServicesDatabase] instance.
+         */
         fun getDatabase(context: Context): ServicesDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(

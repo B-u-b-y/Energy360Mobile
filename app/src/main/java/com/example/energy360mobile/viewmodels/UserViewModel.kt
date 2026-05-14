@@ -1,7 +1,6 @@
 package com.example.energy360mobile.viewmodels
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.energy360mobile.databases.userData.UserDatabase
@@ -16,15 +15,22 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * ViewModel that handles the user logic between DB and UI
+ * ViewModel that handles user-related business logic, bridging the UI and the data layer (Repository).
+ * It manages user authentication, profile data synchronization, and local storage.
+ *
+ * @param application The application instance used to initialize the local database.
  */
 class UserViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: UserRepository
 
-    // Handle subscription and deletion
+    // Internal flow handling the subscription to user data changes
     private var userDataFlow: StateFlow<UserEntity?>
 
+    /**
+     * A StateFlow emitting the current user data from the local database.
+     * Can be null if no user is logged in.
+     */
     val userData: StateFlow<UserEntity?>
         get() = userDataFlow
 
@@ -43,27 +49,34 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /**
-     * Avvia il download dei dati da Firebase per aggiornare Room.
-     * Da chiamare nella UI, ad esempio non appena l'utente effettua il login.
+     * Clears the current user data from the local database.
      */
-    fun syncUserFromCloud(userId: String) {
-        viewModelScope.launch {
-            repository.syncUserFromCloud(userId)
-        }
-    }
-
     fun removeUserData(){
         viewModelScope.launch {
             repository.removeUser()
         }
     }
 
+    /**
+     * Registers a new user. Checks if the email already exists before proceeding.
+     *
+     * @param userData The UserEntity containing the information of the user to register.
+     * @return True if the email already exists (registration failed), false otherwise.
+     */
     suspend fun registerUser(userData: UserEntity) : Boolean{
         return withContext(Dispatchers.IO) {
             repository.checkIfEmailExists(userData)
         }
     }
 
+    /**
+     * Validates user credentials against the remote data source.
+     * If valid, the user data is cached in the local database.
+     *
+     * @param email The user's email address.
+     * @param password The user's password.
+     * @return True if the credentials are valid and login is successful, false otherwise.
+     */
     suspend fun checkCredentials(email: String, password: String): Boolean{
         return withContext(Dispatchers.IO) {
             val fetchedUser = repository.fetchUserData(email)

@@ -28,6 +28,14 @@ import com.example.energy360mobile.R
 import com.example.energy360mobile.viewmodels.StepsViewModel
 
 
+/**
+ * The main entry point for the Home section of the application.
+ * It sets up an internal navigation host to manage transitions between the dashboard,
+ * search, and services pages.
+ *
+ * @param rootNavController The NavController for the entire application.
+ * @param stepsViewModel The ViewModel managing step counting data.
+ */
 @Composable
 fun HomePage(rootNavController: NavHostController, stepsViewModel: StepsViewModel = viewModel()) {
     val internalNavController = rememberNavController()
@@ -42,6 +50,13 @@ fun HomePage(rootNavController: NavHostController, stepsViewModel: StepsViewMode
     }
 }
 
+/**
+ * Displays the main dashboard UI, including the welcome header, step counter,
+ * suggestions, and fast action shortcuts.
+ *
+ * @param navController The internal NavController for dashboard-level navigation.
+ * @param stepsViewModel The ViewModel providing real-time step data.
+ */
 @Composable
 fun HomeDashboard(navController: NavHostController, stepsViewModel: StepsViewModel) {
     val stepsEntity by stepsViewModel.steps.collectAsState()
@@ -52,6 +67,7 @@ fun HomeDashboard(navController: NavHostController, stepsViewModel: StepsViewMod
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
+        // Welcome Header with Gradient Background
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -90,7 +106,7 @@ fun HomeDashboard(navController: NavHostController, stepsViewModel: StepsViewMod
             }
         }
 
-        // Step Counter Card
+        // Real-time Step Counter Card
         StepCounterCard(steps = currentSteps)
 
         Text(
@@ -99,6 +115,7 @@ fun HomeDashboard(navController: NavHostController, stepsViewModel: StepsViewMod
             modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
         )
 
+        // Row of Promotion Cards
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -127,6 +144,7 @@ fun HomeDashboard(navController: NavHostController, stepsViewModel: StepsViewMod
             modifier = Modifier.padding(start = 16.dp, top = 24.dp, bottom = 8.dp)
         )
 
+        // Fast Action buttons
         Column(
             modifier = Modifier.padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -145,6 +163,11 @@ fun HomeDashboard(navController: NavHostController, stepsViewModel: StepsViewMod
     }
 }
 
+/**
+ * A specialized card that displays the daily step count and progress toward a goal.
+ *
+ * @param steps The current number of steps taken.
+ */
 @Composable
 fun StepCounterCard(steps: Int) {
     Card(
@@ -186,7 +209,7 @@ fun StepCounterCard(steps: Int) {
                 }
             }
             
-            // Minimalist goal indicator
+            // Minimalist goal indicator (Circular Progress)
             val progress = (steps.toFloat() / 10000f).coerceIn(0f, 1f)
             CircularProgressIndicator(
                 progress = { progress },
@@ -199,6 +222,15 @@ fun StepCounterCard(steps: Int) {
     }
 }
 
+/**
+ * A decorative card used to highlight special events or promotions.
+ *
+ * @param modifier Modifier to be applied to the card.
+ * @param title The title of the promotion.
+ * @param description A brief description of the offer.
+ * @param icon The representative icon for the card.
+ * @param containerColor The background color for the card.
+ */
 @Composable
 fun PromotionCard(modifier: Modifier, title: String, description: String, icon: ImageVector, containerColor: Color ){
     Card(
@@ -221,6 +253,15 @@ fun PromotionCard(modifier: Modifier, title: String, description: String, icon: 
     }
 }
 
+/**
+ * Interactive card for launching frequent actions.
+ *
+ * @param modifier Modifier to be applied to the card.
+ * @param title The label for the action.
+ * @param icon The icon identifying the action.
+ * @param color The accent color for the icon.
+ * @param onClick Optional callback for when the card is pressed.
+ */
 @Composable
 fun QuickActionCard(modifier: Modifier, title: String, icon: ImageVector, color: Color, onClick: (() -> Unit)? = null) {
     Card(
