@@ -35,8 +35,15 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 
+/**
+ * Main entry point for the User Profile section.
+ * It manages internal navigation between the profile dashboard and other sub-pages.
+ *
+ * @param rootNavController The NavController for the entire application.
+ * @param viewModel The UserViewModel used to fetch and manage user data.
+ */
 @Composable
-fun UserProfile(rootNavController: NavHostController,viewModel: UserViewModel = viewModel()){
+fun UserProfile(rootNavController: NavHostController, viewModel: UserViewModel = viewModel()) {
     val internalNavController = rememberNavController()
 
     NavHost(
@@ -48,6 +55,14 @@ fun UserProfile(rootNavController: NavHostController,viewModel: UserViewModel = 
     }
 }
 
+/**
+ * Displays the user profile dashboard, including the header with profile picture and name,
+ * account information, and training/document status cards.
+ *
+ * @param rootNavController The NavController for the entire application.
+ * @param internalNavController The NavController for internal navigation within the profile section.
+ * @param viewModel The UserViewModel used to access user information.
+ */
 @Composable
 fun UserProfileDashboard(rootNavController: NavHostController, internalNavController: NavHostController, viewModel: UserViewModel = viewModel() ) {
     val userData by viewModel.userData.collectAsState()
@@ -57,7 +72,7 @@ fun UserProfileDashboard(rootNavController: NavHostController, internalNavContro
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-        //top box (big-one)
+        // Profile header section with background gradient and profile picture
         Box(
             modifier = Modifier
                 .padding(16.dp)
@@ -76,6 +91,7 @@ fun UserProfileDashboard(rootNavController: NavHostController, internalNavContro
                     .padding(top = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                // Profile Picture container
                 Surface(
                     modifier = Modifier.size(100.dp),
                     shape = CircleShape,
@@ -95,12 +111,14 @@ fun UserProfileDashboard(rootNavController: NavHostController, internalNavContro
                 
                 Spacer(modifier = Modifier.height(12.dp))
                 
+                // Display User Name (formatted)
                 Text(
                     text = userData?.name?.split(" ")?.joinToString(" ") { it.replaceFirstChar { char -> char.uppercase() } } 
                         ?: stringResource(id = R.string.username),
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
                 )
+                // Display User ID code
                 Text(
                     text = if (userData != null) "${stringResource(id = R.string.user_code)}: ${userData?.id}" else "",
                     style = MaterialTheme.typography.bodySmall,
@@ -109,7 +127,7 @@ fun UserProfileDashboard(rootNavController: NavHostController, internalNavContro
             }
         }
 
-        //"second half" of the page
+        // Section containing account details and status cards
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -120,6 +138,7 @@ fun UserProfileDashboard(rootNavController: NavHostController, internalNavContro
                 modifier = Modifier.padding(bottom = 4.dp)
             )
 
+            // Account details card (Email, Date of Birth)
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
@@ -141,6 +160,7 @@ fun UserProfileDashboard(rootNavController: NavHostController, internalNavContro
                 modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
             )
 
+            // Training related shortcuts
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 StatusCard(
                     modifier = Modifier.weight(1f),
@@ -167,6 +187,7 @@ fun UserProfileDashboard(rootNavController: NavHostController, internalNavContro
                 modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
             )
 
+            // Document and Membership status shortcuts
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 StatusCard(
                     modifier = Modifier.weight(1f),
@@ -184,6 +205,7 @@ fun UserProfileDashboard(rootNavController: NavHostController, internalNavContro
                 )
             }
             
+            // Logout button
             OutlinedButton(
                 onClick = {
                     viewModel.removeUserData();
@@ -202,6 +224,13 @@ fun UserProfileDashboard(rootNavController: NavHostController, internalNavContro
     }
 }
 
+/**
+ * A reusable row for displaying a labeled information field with an icon.
+ *
+ * @param icon The icon to display on the left.
+ * @param label The label text for the field.
+ * @param value The value text for the field.
+ */
 @Composable
 fun ProfileInfoRow(icon: ImageVector, label: String, value: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -213,6 +242,16 @@ fun ProfileInfoRow(icon: ImageVector, label: String, value: String) {
     }
 }
 
+/**
+ * A card representing the status of a specific category (e.g., Training, Nutrition).
+ *
+ * @param modifier Modifier to be applied to the card.
+ * @param title The main title of the card.
+ * @param subtitle A small description or status text.
+ * @param icon The icon representing the category.
+ * @param isValid Boolean indicating if the status is valid or has issues (affects colors).
+ * @param onClick Optional callback for when the card is clicked.
+ */
 @Composable
 fun StatusCard(modifier: Modifier, title: String, subtitle: String, icon: ImageVector, isValid: Boolean, onClick: (() -> Unit)? = null) {
     Card(
@@ -242,6 +281,12 @@ fun StatusCard(modifier: Modifier, title: String, subtitle: String, icon: ImageV
     }
 }
 
+/**
+ * Converts a time in milliseconds to a formatted date string (dd/MM/yyyy).
+ *
+ * @param dateMillis The date in milliseconds.
+ * @return A formatted date string, or "---" if an error occurs.
+ */
 fun convertMillisToDate(dateMillis: Long): String {
     return try {
         val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
