@@ -80,4 +80,11 @@
     <string name="promo_openday_desc">Venez essayer gratuitement</string>
     <string name="existing_user">L\'e-mail existe déjà</string>
     <string name="no_connection">Pas de connexion</string>
+    <string name="choose_exercise">Choisissez un exercice</string>
+    <string name="add_exercise">Ajouter un exercice</string>
+    <string name="completed_exercises_title">Exercices terminés</string>
+    <string name="workout_details">Détails de l\'entraînement</string>
+    <string name="add_to_day">Ajouter à la journée</string>
+    <string name="kg">Kg</string>
+    <string name="exercise_summary">%1$d séries x %2$s réps</string>
 </resources>

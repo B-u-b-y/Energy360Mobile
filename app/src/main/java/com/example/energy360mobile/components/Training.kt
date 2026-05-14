@@ -78,7 +78,7 @@ fun TrainingSession(viewModel: ExercisesViewModel = viewModel(), onBack: () -> U
                 contentColor = MaterialTheme.colorScheme.onPrimary,
                 shape = CircleShape
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Exercise")
+                Icon(Icons.Default.Add, contentDescription = stringResource(id = R.string.add_exercise))
             }
         }
     ) { paddingValues ->
@@ -184,7 +184,7 @@ fun TrainingSession(viewModel: ExercisesViewModel = viewModel(), onBack: () -> U
                     val history = completedExercises.filter { it.day != selectedDay || it.isCompleted }
                     if (history.isNotEmpty()) {
                         Text(
-                            text = "Esercizi già svolti",
+                            text = stringResource(id = R.string.completed_exercises_title),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
@@ -241,7 +241,7 @@ fun AddExerciseContent(
             .padding(bottom = 32.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text("Scegli un esercizio dal Database", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Text(stringResource(id=R.string.choose_exercise), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
 
         if (availableExercises.isEmpty()) {
             Box(modifier = Modifier.fillMaxWidth().height(100.dp), contentAlignment = Alignment.Center) {
@@ -284,19 +284,19 @@ fun AddExerciseContent(
 
         HorizontalDivider()
 
-        Text("Dettagli Allenamento", style = MaterialTheme.typography.titleMedium)
+        Text(stringResource(id = R.string.workout_details), style = MaterialTheme.typography.titleMedium)
 
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             OutlinedTextField(
                 value = sets,
                 onValueChange = { sets = it },
-                label = { Text("Serie") },
+                label = { Text(stringResource(id = R.string.sets)) },
                 modifier = Modifier.weight(1f)
             )
             OutlinedTextField(
                 value = reps,
                 onValueChange = { reps = it },
-                label = { Text("Ripetizioni") },
+                label = { Text(stringResource(id = R.string.reps)) },
                 modifier = Modifier.weight(1f)
             )
         }
@@ -312,7 +312,7 @@ fun AddExerciseContent(
             enabled = selectedExercise != null,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Aggiungi alla giornata")
+            Text(stringResource(id = R.string.add_to_day))
         }
     }
 }
@@ -384,7 +384,7 @@ fun ExerciseCard(exercise: ExercisesEntity, onComplete: (Boolean, List<String>, 
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = "${exercise.sets} serie x ${exercise.reps} rip.",
+                        text = stringResource(id = R.string.exercise_summary, exercise.sets, exercise.reps),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.outline
                     )
@@ -419,7 +419,7 @@ fun ExerciseCard(exercise: ExercisesEntity, onComplete: (Boolean, List<String>, 
                         OutlinedTextField(
                             value = weights.getOrElse(i) { "" },
                             onValueChange = { weights[i] = it },
-                            label = { Text("Kg", fontSize = 10.sp) },
+                            label = { Text(stringResource(id = R.string.kg), fontSize = 10.sp) },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(8.dp),
                             singleLine = true
@@ -427,7 +427,7 @@ fun ExerciseCard(exercise: ExercisesEntity, onComplete: (Boolean, List<String>, 
                         OutlinedTextField(
                             value = repsDone.getOrElse(i) { "" },
                             onValueChange = { repsDone[i] = it },
-                            label = { Text("Reps", fontSize = 10.sp) },
+                            label = { Text(stringResource(id = R.string.reps), fontSize = 10.sp) },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(8.dp),
                             singleLine = true
