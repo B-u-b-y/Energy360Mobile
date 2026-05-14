@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     id("com.google.gms.google-services")
+    alias(libs.plugins.collektive)
 }
 
 android {
@@ -48,25 +49,27 @@ dependencies {
     implementation libs.androidx.compose.ui.tooling.preview
     implementation libs.androidx.compose.material3
     implementation libs.androidx.navigation.compose
-    implementation "androidx.compose.material:material-icons-extended"
+    implementation libs.androidx.compose.material.icons.extended
     implementation libs.androidx.compose.foundation.layout
     implementation(libs.androidx.room.ktx.v261)
     implementation libs.protolite.well.known.types
     ksp(libs.androidx.room.compiler.v261)
 
     // Import the Firebase BoM
-    implementation(platform("com.google.firebase:firebase-bom:34.13.0"))
+    implementation(platform(libs.firebase.bom))
 
 
     // TODO: Add the dependencies for Firebase products you want to use
     // When using the BoM, don't specify versions in Firebase dependencies
-    implementation("com.google.firebase:firebase-firestore")
+    implementation(libs.firebase.firestore)
 
     // '.await()' and Coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
+    implementation(libs.kotlinx.coroutines.play.services)
 
     // Add the dependencies for any other desired Firebase products
     // https://firebase.google.com/docs/android/setup#available-libraries
+
+    implementation(libs.bundles.collektive)
 
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit
