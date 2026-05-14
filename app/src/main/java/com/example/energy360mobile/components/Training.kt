@@ -31,7 +31,14 @@ import com.example.energy360mobile.databases.exercises.ExercisesEntity
 import com.example.energy360mobile.viewmodels.ExercisesViewModel
 import java.util.Calendar
 
-@OptIn(ExperimentalMaterial3Api::class) //Codice trovato per creare il banner dal basso
+/**
+ * Manages the training session UI, allowing users to view, track, and add exercises.
+ * It features a daily filter to organize exercises by the day of the week.
+ *
+ * @param viewModel The ExercisesViewModel for managing training data.
+ * @param onBack Callback triggered when the back navigation button is pressed.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TrainingSession(viewModel: ExercisesViewModel = viewModel(), onBack: () -> Unit ) {
     val exercisesFromDb by viewModel.exercise.collectAsState()
@@ -225,6 +232,13 @@ fun TrainingSession(viewModel: ExercisesViewModel = viewModel(), onBack: () -> U
     }
 }
 
+/**
+ * Content for the BottomSheet used to add a new exercise to the current training session.
+ * Allows users to select an exercise from a list and specify sets and reps.
+ *
+ * @param availableExercises List of exercises that can be added.
+ * @param onAdd Callback function to perform the insertion of the new exercise.
+ */
 @Composable
 fun AddExerciseContent(
     availableExercises: List<ExercisesEntity>,
@@ -317,6 +331,13 @@ fun AddExerciseContent(
     }
 }
 
+/**
+ * A small circular chip representing a day of the week.
+ *
+ * @param day The label for the day (e.g., "Mon", "Tue").
+ * @param isSelected Boolean flag indicating if this day is currently active.
+ * @param onClick Callback triggered when the chip is pressed.
+ */
 @Composable
 fun DayChip(day: String, isSelected: Boolean, onClick: () -> Unit) {
     Box(
@@ -339,6 +360,13 @@ fun DayChip(day: String, isSelected: Boolean, onClick: () -> Unit) {
     }
 }
 
+/**
+ * A card representing an individual exercise within a training session.
+ * Displays exercise details and allows tracking progress for each set (weight and reps).
+ *
+ * @param exercise The ExercisesEntity containing the exercise data.
+ * @param onComplete Callback function triggered when an exercise is marked as done.
+ */
 @Composable
 fun ExerciseCard(exercise: ExercisesEntity, onComplete: (Boolean, List<String>, List<String>) -> Unit) {
     var expanded by remember { mutableStateOf(false) }

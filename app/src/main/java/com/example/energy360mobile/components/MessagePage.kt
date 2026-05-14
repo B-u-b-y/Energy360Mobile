@@ -32,12 +32,27 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.energy360mobile.R
 
+/**
+ * Represents a chat message in the message list.
+ *
+ * @property sender The name of the person or system that sent the message.
+ * @property content The text content of the message snippet.
+ * @property time The timestamp or relative time when the message was received.
+ * @property isUnread Boolean flag indicating if the message has not been read yet.
+ */
 data class Message(
     val sender: String,
     val content: String,
     val time: String,
     val isUnread: Boolean = false
 )
+
+/**
+ * Displays the list of messages and notifications for the user.
+ * It shows a list of recent chats or a placeholder if no messages are available.
+ *
+ * @param rootNavController The NavController used to navigate to detailed chat views.
+ */
 @Composable
 fun MessagePage(rootNavController: NavHostController){
 
@@ -53,7 +68,7 @@ fun MessagePage(rootNavController: NavHostController){
         modifier = Modifier
             .fillMaxSize()
     ) {
-        //top rounded box (big-one)
+        // Top header section with gradient background
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -80,6 +95,8 @@ fun MessagePage(rootNavController: NavHostController){
                 )
             }
         }
+        
+        // List of message cards or empty state message
         Column(
             modifier = Modifier
                 .padding(16.dp)
@@ -87,6 +104,7 @@ fun MessagePage(rootNavController: NavHostController){
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             if (messages.isEmpty()) {
+                // Placeholder card shown when there are no messages
                 Card(
                     modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
                     colors = CardDefaults.cardColors(
@@ -111,6 +129,7 @@ fun MessagePage(rootNavController: NavHostController){
                     }
                 }
             } else {
+                // Iterating through the list of messages to display cards
                 messages.forEach { message ->
                     ChatCard(message, onChatClick = {
                         rootNavController.navigate("chat_detail/${message.sender}")
@@ -122,6 +141,12 @@ fun MessagePage(rootNavController: NavHostController){
     }
 }
 
+/**
+ * A card representing an individual conversation in the message list.
+ *
+ * @param message The message data to display.
+ * @param onChatClick Callback triggered when the card is tapped.
+ */
 @Composable
 fun ChatCard(message: Message, onChatClick: (String) -> Unit){
     Card(
@@ -154,4 +179,3 @@ fun ChatCard(message: Message, onChatClick: (String) -> Unit){
         }
     }
 }
-
