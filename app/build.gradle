@@ -53,6 +53,9 @@ dependencies {
     implementation libs.androidx.compose.foundation.layout
     implementation(libs.androidx.room.ktx.v261)
     implementation libs.protolite.well.known.types
+    testImplementation libs.junit.jupiter
+    testImplementation libs.kotlinx.coroutines.test
+    testImplementation "io.mockk:mockk:1.14.9"
     ksp(libs.androidx.room.compiler.v261)
 
     // Import the Firebase BoM
@@ -77,6 +80,8 @@ dependencies {
     androidTestImplementation libs.androidx.room.testing
     androidTestImplementation platform(libs.androidx.compose.bom)
     androidTestImplementation libs.androidx.compose.ui.test.junit4
+    androidTestImplementation libs.mockk.android
+    androidTestImplementation libs.kotlinx.coroutines.test.v181
     debugImplementation libs.androidx.compose.ui.tooling
     debugImplementation libs.androidx.compose.ui.test.manifest
 }
