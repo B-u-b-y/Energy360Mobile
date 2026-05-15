@@ -46,6 +46,7 @@ import com.example.energy360mobile.viewmodels.UserViewModel
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.ui.platform.testTag
 import com.example.energy360mobile.utils.ConnectivityObserver
 import com.example.energy360mobile.utils.NetworkObserver
 import kotlinx.coroutines.launch
@@ -175,12 +176,15 @@ fun Login(viewModel: UserViewModel, rootNavController: NavHostController, innerN
                 leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
                 trailingIcon = {
                     val image = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    IconButton(
+                        modifier = Modifier.testTag("passwordVisibility"),
+                        onClick = { passwordVisible = !passwordVisible }
+                    ) {
                         Icon(image, contentDescription = null)
                     }
                 },
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().testTag("passwordField"),
                 shape = RoundedCornerShape(12.dp),
                 singleLine = true
             )
