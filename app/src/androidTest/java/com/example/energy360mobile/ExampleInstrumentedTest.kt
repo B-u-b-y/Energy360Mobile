@@ -1,24 +1,23 @@
 package com.example.energy360mobile
 
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.ext.junit.runners.AndroidJUnit4
-
-import org.junit.Test
 import org.junit.runner.RunWith
-
-import org.junit.Assert.*
+import org.junit.runners.Suite
 
 /**
- * Instrumented test, which will execute on an Android device.
- *
- * See [testing documentation](http://d.android.com/tools/testing).
+ * Automated Test Suite that runs all UI and Instrumented tests in the project.
+ * You can run this class to execute all the tests listed below in one go.
  */
-@RunWith(AndroidJUnit4::class)
-class ExampleInstrumentedTest {
-    @Test
-    fun useAppContext() {
-        // Context of the app under test.
-        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.example.energy360mobile", appContext.packageName)
-    }
-}
+@RunWith(Suite::class)
+@Suite.SuiteClasses(
+    LoginUiTest::class,
+    HomePageUiTest::class,
+    BottomBarTest::class,
+    NavGraphTest::class,
+    ReservationsUiTest::class,
+    ServicesUiTest::class,
+    TrainingUiTest::class,
+    LoginNoConnectionUiTest::class,
+    ReservationsNoConnectionUiTest::class,
+    SearchPageNoConnectionUiTest::class
+)
+class AllUiTestSuite
