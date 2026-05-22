@@ -57,12 +57,13 @@ dependencies {
     testImplementation libs.mockk
     ksp(libs.androidx.room.compiler.v261)
 
-    // Import the Firebase BoM
     implementation(platform(libs.firebase.bom))
 
     implementation(libs.firebase.firestore)
 
     implementation(libs.kotlinx.coroutines.play.services)
+
+    implementation(libs.coil.compose)
 
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit

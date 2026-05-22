@@ -48,6 +48,7 @@ mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockkAndroid" }
 protolite-well-known-types = { group = "com.google.firebase", name = "protolite-well-known-types", version.ref = "protoliteWellKnownTypes" }
 junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junitJupiter" }
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 
 
 [plugins]

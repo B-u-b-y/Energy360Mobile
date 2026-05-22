@@ -1,5 +1,8 @@
 package com.example.energy360mobile.components
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -11,9 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,6 +25,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -37,10 +39,10 @@ import java.util.Locale
 
 /**
  * Main entry point for the User Profile section.
- * It manages internal navigation between the profile dashboard and other sub-pages.
+ * It manages internal navigation between the profile dashboard and sub-pages like the training session.
  *
- * @param rootNavController The NavController for the entire application.
- * @param viewModel The UserViewModel used to fetch and manage user data.
+ * @param rootNavController The [NavHostController] for the entire application, used for top-level navigation (e.g., logout).
+ * @param viewModel The [UserViewModel] used to fetch and manage user data.
  */
 @Composable
 fun UserProfile(rootNavController: NavHostController, viewModel: UserViewModel = viewModel()) {
@@ -50,22 +52,33 @@ fun UserProfile(rootNavController: NavHostController, viewModel: UserViewModel =
         navController = internalNavController,
         startDestination = "profile/home"
     ){
-        composable("profile/home"){UserProfileDashboard(rootNavController, internalNavController)}
+        composable("profile/home"){UserProfileDashboard(rootNavController, internalNavController, viewModel)}
         composable("profile/training_page"){TrainingSession(onBack = { internalNavController.popBackStack() })}
     }
 }
 
 /**
- * Displays the user profile dashboard, including the header with profile picture and name,
- * account information, and training/document status cards.
+ * Displays the user profile dashboard.
+ * Features a header with the profile picture and user name, account information details,
+ * and shortcut cards for training, nutrition, medical details, and membership status.
  *
- * @param rootNavController The NavController for the entire application.
- * @param internalNavController The NavController for internal navigation within the profile section.
- * @param viewModel The UserViewModel used to access user information.
+ * @param rootNavController The [NavHostController] for the entire application.
+ * @param internalNavController The [NavHostController] for internal navigation within the profile section.
+ * @param viewModel The [UserViewModel] used to access and observe user information.
  */
 @Composable
-fun UserProfileDashboard(rootNavController: NavHostController, internalNavController: NavHostController, viewModel: UserViewModel = viewModel() ) {
+fun UserProfileDashboard(rootNavController: NavHostController, internalNavController: NavHostController, viewModel: UserViewModel = viewModel()) {
     val userData by viewModel.userData.collectAsState()
+    val profileImageUri by viewModel.profileImageUri.collectAsState()
+
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            if (uri != null) {
+                viewModel.saveProfileImageUri(uri)
+            }
+        }
+    )
 
     Column(
         modifier = Modifier
@@ -92,21 +105,60 @@ fun UserProfileDashboard(rootNavController: NavHostController, internalNavContro
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Profile Picture container
-                Surface(
+                Box(
                     modifier = Modifier.size(100.dp),
-                    shape = CircleShape,
-                    color = MaterialTheme.colorScheme.surface,
-                    shadowElevation = 8.dp
+                    contentAlignment = Alignment.BottomEnd
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.lion),
-                        contentDescription = stringResource(id = R.string.profile_picture),
-                        contentScale = ContentScale.Crop,
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.surface,
+                        shadowElevation = 8.dp,
+                        onClick = {
+                            photoPickerLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        }
+                    ) {
+                        if (profileImageUri != null) {
+                            AsyncImage(
+                                model = profileImageUri,
+                                contentDescription = stringResource(id = R.string.profile_picture),
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(4.dp)
+                                    .clip(CircleShape)
+                            )
+                        } else {
+                            Image(
+                                painter = painterResource(id = R.drawable.lion),
+                                contentDescription = stringResource(id = R.string.profile_picture),
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(4.dp)
+                                    .clip(CircleShape),
+                            )
+                        }
+                    }
+
+                    // Edit Icon (Grey pen) overlay
+                    Box(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(4.dp)
+                            .size(28.dp)
                             .clip(CircleShape)
-                    )
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .padding(6.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
                 }
                 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -208,7 +260,7 @@ fun UserProfileDashboard(rootNavController: NavHostController, internalNavContro
             // Logout button
             OutlinedButton(
                 onClick = {
-                    viewModel.removeUserData();
+                    viewModel.removeUserData()
                     rootNavController.navigate("auth") },
                 modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
                 shape = RoundedCornerShape(12.dp),
@@ -226,10 +278,11 @@ fun UserProfileDashboard(rootNavController: NavHostController, internalNavContro
 
 /**
  * A reusable row for displaying a labeled information field with an icon.
+ * Typically used within the account information section.
  *
- * @param icon The icon to display on the left.
- * @param label The label text for the field.
- * @param value The value text for the field.
+ * @param icon The [ImageVector] icon to display on the left.
+ * @param label The label text for the field (e.g., "Email").
+ * @param value The value text for the field (e.g., "user@example.com").
  */
 @Composable
 fun ProfileInfoRow(icon: ImageVector, label: String, value: String) {
@@ -243,13 +296,14 @@ fun ProfileInfoRow(icon: ImageVector, label: String, value: String) {
 }
 
 /**
- * A card representing the status of a specific category (e.g., Training, Nutrition).
+ * A card representing the status or a shortcut to a specific category (e.g., Training, Nutrition).
+ * It changes its appearance based on the validity of the status.
  *
- * @param modifier Modifier to be applied to the card.
- * @param title The main title of the card.
- * @param subtitle A small description or status text.
- * @param icon The icon representing the category.
- * @param isValid Boolean indicating if the status is valid or has issues (affects colors).
+ * @param modifier [Modifier] to be applied to the card layout.
+ * @param title The main title displayed on the card.
+ * @param subtitle A small description or status text (e.g., "Piano Gold").
+ * @param icon The [ImageVector] representing the category.
+ * @param isValid Boolean indicating if the status is valid. If false, the card uses an error color scheme.
  * @param onClick Optional callback for when the card is clicked.
  */
 @Composable
