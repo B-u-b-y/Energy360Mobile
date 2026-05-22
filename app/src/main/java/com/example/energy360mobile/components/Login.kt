@@ -28,10 +28,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import java.time.Instant
-import java.time.LocalDate
-import java.time.Period
-import java.time.ZoneId
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -49,10 +45,13 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.ui.platform.testTag
 import com.example.energy360mobile.utils.ConnectivityObserver
 import com.example.energy360mobile.utils.NetworkObserver
+import com.example.energy360mobile.utils.isStrongPassword
+import com.example.energy360mobile.utils.isValidEmail
 import kotlinx.coroutines.launch
 import java.util.Date
 import java.text.SimpleDateFormat
 import java.util.Locale
+import java.util.Calendar
 
 /**
  * Entry point for the Authentication flow.
@@ -260,6 +259,9 @@ fun Register(viewModel: UserViewModel, rootNavController: NavHostController, inn
     val datePickerState = rememberDatePickerState()
     val scope = rememberCoroutineScope()
     var showInvalid by remember { mutableStateOf(false) }
+    var nameError by remember { mutableStateOf(false) }
+    var invalidEmail by remember { mutableStateOf(false) }
+    var invalidPassword by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -308,7 +310,8 @@ fun Register(viewModel: UserViewModel, rootNavController: NavHostController, inn
                 leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                singleLine = true
+                singleLine = true,
+                isError = nameError
             )
 
             OutlinedTextField(
@@ -318,7 +321,8 @@ fun Register(viewModel: UserViewModel, rootNavController: NavHostController, inn
                 leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                singleLine = true
+                singleLine = true,
+                isError = invalidEmail
             )
 
             OutlinedTextField(
@@ -335,7 +339,8 @@ fun Register(viewModel: UserViewModel, rootNavController: NavHostController, inn
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                singleLine = true
+                singleLine = true,
+                isError = invalidPassword
             )
 
             // Date of Birth selection (read-only field with picker)
@@ -353,7 +358,8 @@ fun Register(viewModel: UserViewModel, rootNavController: NavHostController, inn
                     .clickable { showDatePicker = true },
                 shape = RoundedCornerShape(12.dp),
                 readOnly = true,
-                singleLine = true
+                singleLine = true,
+                isError = dateError
             )
 
             // Date validation error message
@@ -368,6 +374,39 @@ fun Register(viewModel: UserViewModel, rootNavController: NavHostController, inn
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.error,
                         fontSize = 16.sp
+                    )
+                )
+            }
+
+            // Email validation error message
+            if (invalidEmail) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    text = stringResource(id = R.string.invalid_email),
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.error,
+                        fontSize = 16.sp
+                    )
+                )
+            }
+            // Password validation error message
+            if (invalidPassword) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp),
+                    text = stringResource(id = R.string.invalid_password),
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.error,
+                        fontSize = 14.sp,
+                        lineHeight = 18.sp
                     )
                 )
             }
@@ -419,12 +458,28 @@ fun Register(viewModel: UserViewModel, rootNavController: NavHostController, inn
             Button(
                 onClick = {
                     val selectedDateMillis = datePickerState.selectedDateMillis
-                    if (selectedDateMillis != null && validateAge(selectedDateMillis)) {
-                        dateError = false
+
+                    // Reset all errors first
+                    nameError = false
+                    invalidEmail = false
+                    invalidPassword = false
+                    dateError = false
+                    showInvalid = false
+
+                    if (name.isBlank()) {
+                        nameError = true
+                    } else if (!checkEmail(email)) {
+                        invalidEmail = true
+                    } else if (!checkPassword(password)) {
+                        invalidPassword = true
+                    } else if (selectedDateMillis == null || !validateAge(selectedDateMillis)) {
+                        dateError = true
+                    } else {
                         // Prepare user entity with formatted name
                         val userData = UserEntity(
                             id = "",
-                            name = name.split(" ").joinToString(" ") { it.replaceFirstChar { char -> char.uppercase() } },
+                            name = name.split(" ")
+                                .joinToString(" ") { it.replaceFirstChar { char -> char.uppercase() } },
                             email = email.lowercase(),
                             password = password,
                             dob = selectedDateMillis
@@ -432,13 +487,13 @@ fun Register(viewModel: UserViewModel, rootNavController: NavHostController, inn
                         scope.launch {
                             val isSuccess = viewModel.registerUser(userData)
                             if (!isSuccess) {
-                                rootNavController.navigate(Screen.Home.route)
-                            }else {
+                                rootNavController.navigate(Screen.Home.route) {
+                                    popUpTo("auth") { inclusive = true }
+                                }
+                            } else {
                                 showInvalid = true
                             }
                         }
-                    } else {
-                        dateError = true
                     }
                 },
                 modifier = Modifier
@@ -462,20 +517,30 @@ fun Register(viewModel: UserViewModel, rootNavController: NavHostController, inn
 }
 
 /**
- * Validates that the user is between 16 and 100 years old based on their birth date.
+ * Validates that the user is between 16 and 100 years old based on their birth date..
  *
  * @param birthDateMillis The birth date in milliseconds.
- * @return True if the age is valid, false otherwise.
+ * @return True if the age is valid (between 16 and 100), false otherwise.
  */
 fun validateAge(birthDateMillis: Long): Boolean {
-    return try {
-        val birthDate = Instant.ofEpochMilli(birthDateMillis)
-            .atZone(ZoneId.systemDefault())
-            .toLocalDate()
-        val now = LocalDate.now()
-        val age = Period.between(birthDate, now).years
-        age in 16..100
-    } catch (e: Exception) {
-        false
+    val birthDate = Calendar.getInstance().apply { timeInMillis = birthDateMillis }
+    val today = Calendar.getInstance()
+
+    if (birthDate.after(today)) return false
+
+    var age = today.get(Calendar.YEAR) - birthDate.get(Calendar.YEAR)
+
+    if (today.get(Calendar.DAY_OF_YEAR) < birthDate.get(Calendar.DAY_OF_YEAR)) {
+        age--
     }
+
+    return age in 16..100
+}
+
+fun checkEmail(email: String): Boolean {
+    return isValidEmail(email)
+}
+
+fun checkPassword(password: String): Boolean {
+    return isStrongPassword(password)
 }

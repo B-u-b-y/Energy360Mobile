@@ -87,4 +87,7 @@
     <string name="add_to_day">Añadir al día</string>
     <string name="kg">Kg</string>
     <string name="exercise_summary">%1$d series x %2$s reps</string>
+    <string name="invalid_email">Formato de correo electrónico no válido</string>
+    <string name="invalid_password">La contraseña debe contener al menos 8 caracteres, una mayúscula, una minúscula y un número</string>
+    <string name="name_required">El nombre es obligatorio</string>
 </resources>

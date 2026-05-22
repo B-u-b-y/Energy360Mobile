@@ -87,4 +87,7 @@
     <string name="add_to_day">Add to day</string>
     <string name="kg">Kg</string>
     <string name="exercise_summary">%1$d sets x %2$s reps</string>
+    <string name="invalid_email">Invalid email format</string>
+    <string name="invalid_password">The password must contain at least 8 characters, one uppercase, one lowercase and a number</string>
+    <string name="name_required">Name is required</string>
 </resources>
