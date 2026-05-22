@@ -54,7 +54,7 @@ dependencies {
     implementation libs.protolite.well.known.types
     testImplementation libs.junit.jupiter
     testImplementation libs.kotlinx.coroutines.test
-    testImplementation "io.mockk:mockk:1.14.9"
+    testImplementation libs.mockk
     ksp(libs.androidx.room.compiler.v261)
 
     implementation(platform(libs.firebase.bom))
@@ -72,7 +72,7 @@ dependencies {
     androidTestImplementation platform(libs.androidx.compose.bom)
     androidTestImplementation libs.androidx.compose.ui.test.junit4
     androidTestImplementation libs.mockk.android
-    androidTestImplementation libs.kotlinx.coroutines.test.v181
+    androidTestImplementation libs.kotlinx.coroutines.test
     debugImplementation libs.androidx.compose.ui.tooling
     debugImplementation libs.androidx.compose.ui.test.manifest
 }
