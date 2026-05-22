@@ -1,0 +1,73 @@
+Index: .idea/deploymentTargetSelector.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"deploymentTargetSelector\">\r\n    <selectionStates>\r\n      <SelectionState runConfigName=\"app\">\r\n        <option name=\"selectionMode\" value=\"DROPDOWN\" />\r\n        <DialogSelection />\r\n      </SelectionState>\r\n      <SelectionState runConfigName=\"ServicesUiTest\">\r\n        <option name=\"selectionMode\" value=\"DROPDOWN\" />\r\n        <DropdownSelection timestamp=\"2026-05-15T09:28:59.394070300Z\">\r\n          <Target type=\"DEFAULT_BOOT\">\r\n            <handle>\r\n              <DeviceId pluginId=\"LocalEmulator\" identifier=\"path=C:\\Users\\hp\\.android\\avd\\Medium_Phone.avd\" />\r\n            </handle>\r\n          </Target>\r\n        </DropdownSelection>\r\n        <DialogSelection />\r\n      </SelectionState>\r\n      <SelectionState runConfigName=\"TrainingUiTest\">\r\n        <option name=\"selectionMode\" value=\"DROPDOWN\" />\r\n        <DropdownSelection timestamp=\"2026-05-15T09:28:59.394070300Z\">\r\n          <Target type=\"DEFAULT_BOOT\">\r\n            <handle>\r\n              <DeviceId pluginId=\"LocalEmulator\" identifier=\"path=C:\\Users\\hp\\.android\\avd\\Medium_Phone.avd\" />\r\n            </handle>\r\n          </Target>\r\n        </DropdownSelection>\r\n        <DialogSelection />\r\n      </SelectionState>\r\n      <SelectionState runConfigName=\"AllUiTestSuite\">\r\n        <option name=\"selectionMode\" value=\"DROPDOWN\" />\r\n        <DropdownSelection timestamp=\"2026-05-15T13:51:07.258278900Z\">\r\n          <Target type=\"DEFAULT_BOOT\">\r\n            <handle>\r\n              <DeviceId pluginId=\"PhysicalDevice\" identifier=\"serial=R58MA14XJGX\" />\r\n            </handle>\r\n          </Target>\r\n        </DropdownSelection>\r\n        <DialogSelection />\r\n      </SelectionState>\r\n      <SelectionState runConfigName=\"LoginNoConnectionUiTest\">\r\n        <option name=\"selectionMode\" value=\"DROPDOWN\" />\r\n        <DropdownSelection timestamp=\"2026-05-15T09:28:59.394070300Z\">\r\n          <Target type=\"DEFAULT_BOOT\">\r\n            <handle>\r\n              <DeviceId pluginId=\"LocalEmulator\" identifier=\"path=C:\\Users\\hp\\.android\\avd\\Medium_Phone.avd\" />\r\n            </handle>\r\n          </Target>\r\n        </DropdownSelection>\r\n        <DialogSelection />\r\n      </SelectionState>\r\n      <SelectionState runConfigName=\"SearchPageNoConnectionUiTest\">\r\n        <option name=\"selectionMode\" value=\"DROPDOWN\" />\r\n        <DropdownSelection timestamp=\"2026-05-15T09:28:59.394070300Z\">\r\n          <Target type=\"DEFAULT_BOOT\">\r\n            <handle>\r\n              <DeviceId pluginId=\"LocalEmulator\" identifier=\"path=C:\\Users\\hp\\.android\\avd\\Medium_Phone.avd\" />\r\n            </handle>\r\n          </Target>\r\n        </DropdownSelection>\r\n        <DialogSelection />\r\n      </SelectionState>\r\n    </selectionStates>\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/deploymentTargetSelector.xml b/.idea/deploymentTargetSelector.xml
+--- a/.idea/deploymentTargetSelector.xml	(revision 415157128018f7e80fe01370aa00d7ba3420749d)
++++ b/.idea/deploymentTargetSelector.xml	(date 1779291048469)
+@@ -6,61 +6,6 @@
+         <option name="selectionMode" value="DROPDOWN" />
+         <DialogSelection />
+       </SelectionState>
+-      <SelectionState runConfigName="ServicesUiTest">
+-        <option name="selectionMode" value="DROPDOWN" />
+-        <DropdownSelection timestamp="2026-05-15T09:28:59.394070300Z">
+-          <Target type="DEFAULT_BOOT">
+-            <handle>
+-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\hp\.android\avd\Medium_Phone.avd" />
+-            </handle>
+-          </Target>
+-        </DropdownSelection>
+-        <DialogSelection />
+-      </SelectionState>
+-      <SelectionState runConfigName="TrainingUiTest">
+-        <option name="selectionMode" value="DROPDOWN" />
+-        <DropdownSelection timestamp="2026-05-15T09:28:59.394070300Z">
+-          <Target type="DEFAULT_BOOT">
+-            <handle>
+-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\hp\.android\avd\Medium_Phone.avd" />
+-            </handle>
+-          </Target>
+-        </DropdownSelection>
+-        <DialogSelection />
+-      </SelectionState>
+-      <SelectionState runConfigName="AllUiTestSuite">
+-        <option name="selectionMode" value="DROPDOWN" />
+-        <DropdownSelection timestamp="2026-05-15T13:51:07.258278900Z">
+-          <Target type="DEFAULT_BOOT">
+-            <handle>
+-              <DeviceId pluginId="PhysicalDevice" identifier="serial=R58MA14XJGX" />
+-            </handle>
+-          </Target>
+-        </DropdownSelection>
+-        <DialogSelection />
+-      </SelectionState>
+-      <SelectionState runConfigName="LoginNoConnectionUiTest">
+-        <option name="selectionMode" value="DROPDOWN" />
+-        <DropdownSelection timestamp="2026-05-15T09:28:59.394070300Z">
+-          <Target type="DEFAULT_BOOT">
+-            <handle>
+-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\hp\.android\avd\Medium_Phone.avd" />
+-            </handle>
+-          </Target>
+-        </DropdownSelection>
+-        <DialogSelection />
+-      </SelectionState>
+-      <SelectionState runConfigName="SearchPageNoConnectionUiTest">
+-        <option name="selectionMode" value="DROPDOWN" />
+-        <DropdownSelection timestamp="2026-05-15T09:28:59.394070300Z">
+-          <Target type="DEFAULT_BOOT">
+-            <handle>
+-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\hp\.android\avd\Medium_Phone.avd" />
+-            </handle>
+-          </Target>
+-        </DropdownSelection>
+-        <DialogSelection />
+-      </SelectionState>
+     </selectionStates>
+   </component>
+ </project>
+\ No newline at end of file

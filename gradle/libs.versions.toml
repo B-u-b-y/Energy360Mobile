@@ -17,8 +17,8 @@ navigationCompose = "2.9.8"
 foundationLayout = "1.11.1"
 roomKtx = "2.8.4"
 protoliteWellKnownTypes = "18.0.1"
-collektive = "28.2.3"
 junitJupiter = "5.14.0"
+coil = "2.7.0"
 
 [libraries]
 androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
@@ -48,18 +48,11 @@ kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-t
 kotlinx-coroutines-test-v181 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTestVersion" }
 mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockkAndroid" }
 protolite-well-known-types = { group = "com.google.firebase", name = "protolite-well-known-types", version.ref = "protoliteWellKnownTypes" }
-collektive-dsl = { module = "it.unibo.collektive:collektive-dsl", version.ref = "collektive" }
-collektive-stdlib = { module = "it.unibo.collektive:collektive-stdlib", version.ref = "collektive" }
 junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junitJupiter" }
-
-[bundles]
-collektive = ["collektive-dsl", "collektive-stdlib"]
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 
 [plugins]
-collektive = { id = "it.unibo.collektive.collektive-plugin", version.ref = "collektive" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version = "2.3.2" }
 androidx-room = { id = "androidx.room", version.ref = "roomKtx" }
-# compose-compiler is redundant as it is the same as kotlin-compose
-# compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
